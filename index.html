@@ -84,6 +84,18 @@
   .cat-chip { flex: 0 0 auto; border: 0; background: var(--card2); color: var(--sub); padding: 7px 12px; border-radius: 999px; font-size: 14px; cursor: pointer; }
   .cat-chip.on { background: var(--text); color: var(--bg); font-weight: 700; }
   .recent-label { flex: 0 0 auto; color: var(--sub); font-size: 13px; align-self: center; }
+  /* 최근 고른 매장 (✕로 기록에서 지우기) + 전체 매장 펼치기/접기 */
+  .recent { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 10px 0 2px; }
+  .recent:empty { display: none; }
+  .rchip { display: inline-flex; align-items: center; background: var(--card2); border-radius: 999px; }
+  .rchip button { border: 0; background: none; color: var(--text); font-size: 14px; cursor: pointer; padding: 7px 2px 7px 12px; }
+  .rchip .rx { color: var(--sub); font-size: 13px; padding: 7px 11px 7px 7px; min-width: 32px; }
+  .rchip.on { background: var(--text); }
+  .rchip.on button { color: var(--bg); font-weight: 700; }
+  .rchip.on .rx { color: var(--bg); opacity: .7; }
+  .fold-btn { display: block; width: 100%; margin: 10px 0 0; border: 1px dashed var(--line); background: none; color: var(--sub);
+              padding: 10px; border-radius: 12px; font-size: 14px; cursor: pointer; }
+  .fold-btn[hidden] { display: none; }
 
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
   .chip { border: 1px solid var(--line); background: var(--card); color: var(--text); padding: 8px 12px; border-radius: 999px; font-size: 15px; cursor: pointer; }
@@ -250,7 +262,8 @@
     <div id="setupBanner"></div>
     <div id="leftPanel"></div>
     <div class="search"><span>🔍</span><input type="search" id="search" placeholder="어디서 결제하세요? (예: 파리바게뜨)" autocomplete="off"></div>
-    <div class="hscroll" id="recent"></div>
+    <div class="recent" id="recent"></div>
+    <button class="fold-btn" id="foldBtn" type="button"></button>
     <div class="hscroll" id="cats"></div>
     <div class="chips" id="chips"></div>
     <div class="small" id="chipHint"></div>
@@ -332,6 +345,7 @@
 
   const $ = (s) => document.querySelector(s);
   let 선택매장 = null, 선택분류 = "";
+  let 매장펼침 = false; // 첫 화면 전체 매장 목록: 평소엔 접어 두고 최근 고른 곳만 보여줌
 
   function 글(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
   function 상태(메시지) { $("#status").textContent = 메시지; }
@@ -383,16 +397,23 @@
   const 카드_기준일 = 카드있음 && typeof 카드정보 !== "undefined" ? 카드정보.기준일 : "";
   const 카드_추가매장 = typeof 카드추가매장 !== "undefined" ? 카드추가매장 : [];
   function 카드찾기(id) { return 카드_목록.find((c) => c.id === id); }
-  // 카드고릴라에서 검색해 넣은 카드 (사전에 없는 카드) — 이 폰에 저장
+  // 내 카드 복사본 — 내가 고른 카드는 모두 이 폰에 복사해 둠 (v9부터)
+  //  · 검색카드: 카드고릴라에서 찾아 넣은 카드
+  //  · 보관카드: 카드 사전(cards.js)에서 골랐는데 나중에 사전에서 빠진 카드 → 복사본으로 계속 남음
+  //  사전에 같은 카드가 있으면 언제나 사전(최신) 내용을 씀. 저장 이름표는 예전 것 그대로 써서 v8 기록과 이어짐.
   const 검색카드키 = "혜택앱v8_검색카드";
   function 검색카드합치기(목록) {
     (Array.isArray(목록) ? 목록 : []).forEach((c) => {
-      if (c && typeof c === "object" && /^cg\d+$/.test(c.id) && !카드찾기(c.id))
-        카드_목록.push(Object.assign({}, c, { 혜택: [].concat(c.혜택 || []), 기타: [].concat(c.기타 || []), 검색카드: true }));
+      if (!(c && typeof c === "object" && /^cg\d+$/.test(c.id) && !카드찾기(c.id))) return;
+      const 사전에서 = !!c.사전카드;
+      카드_목록.push(Object.assign({}, c, { 혜택: [].concat(c.혜택 || []), 기타: [].concat(c.기타 || []), 검색카드: !사전에서, 보관카드: 사전에서 }));
     });
   }
   검색카드합치기(읽기(검색카드키));
-  function 검색카드들() { return 카드_목록.filter((c) => c.검색카드 && 내정보.카드.includes(c.id)); }
+  function 검색카드들() {
+    return 내정보.카드.map(카드찾기).filter(Boolean).map((c) =>
+      c.검색카드 || c.보관카드 ? c : Object.assign({}, c, { 사전카드: true, 가져온날: c.가져온날 || 카드_기준일 }));
+  }
   function 검색카드저장() { if (!쓰기(검색카드키, 검색카드들())) 상태(저장실패안내); }
   function 카드기준일(c) { return (c && c.가져온날) || 카드_기준일; }
   // 띄어쓰기·대소문자 무시하고 카드 이름 찾기 (예: '현대카드 m' → 현대카드M)
@@ -418,19 +439,37 @@
   function 멤버십대표매장(id) { return [...new Set(사전_혜택.filter((h) => h.멤버십 === id).map((h) => h.적용))].slice(0, 3).join("·"); }
 
   // ===== 내 멤버십 설정 =====
+  // 혜택 사전(benefits.js)에서 멤버십·등급이 빠지면 지우지 않고 '보류'에 두었다가, 사전에 다시 생기면 되살림 (v9부터)
   function 내정보정리(d) {
     d = d && typeof d === "object" ? d : {};
-    const 통신사 = 통신사목록.some((m) => m.id === d.통신사) ? d.통신사 : null;
-    const 등급 = 통신사 && (멤버십찾기(통신사).등급 || []).includes(d.등급) ? d.등급 : null;
-    const 포인트 = [...new Set(Array.isArray(d.포인트) ? d.포인트.filter((id) => 기타목록.some((m) => m.id === id)) : [])];
-    const 포인트등급 = {}, 원래 = d.포인트등급 && typeof d.포인트등급 === "object" ? d.포인트등급 : {};
-    포인트.forEach((id) => { const m = 멤버십찾기(id); if (m.등급 && m.등급.includes(원래[id])) 포인트등급[id] = 원래[id]; });
+    const 전 = d.보류 && typeof d.보류 === "object" ? d.보류 : {};
+    const 글자 = (x) => (typeof x === "string" && x ? x : null);
+    const 보류 = { 통신사: null, 등급: null, 포인트: [], 포인트등급: {} };
+    let 원통신사 = 글자(d.통신사), 원등급 = 글자(d.등급);
+    if (!원통신사 && 글자(전.통신사)) { 원통신사 = 전.통신사; 원등급 = 글자(전.등급); }
+    else if (원통신사 && 원통신사 === 전.통신사 && !원등급) 원등급 = 글자(전.등급);
+    const 통신사 = 통신사목록.some((m) => m.id === 원통신사) ? 원통신사 : null;
+    const 등급 = 통신사 && (멤버십찾기(통신사).등급 || []).includes(원등급) ? 원등급 : null;
+    if (원통신사 && (!통신사 || (원등급 && !등급))) { 보류.통신사 = 원통신사; 보류.등급 = 원등급; }
+    const 원포인트 = [...new Set([].concat(Array.isArray(d.포인트) ? d.포인트 : [], Array.isArray(전.포인트) ? 전.포인트 : []).filter(글자))];
+    const 포인트 = 원포인트.filter((id) => 기타목록.some((m) => m.id === id));
+    보류.포인트 = 원포인트.filter((id) => !포인트.includes(id));
+    const 객체 = (o) => (o && typeof o === "object" ? o : {});
+    const 포인트등급 = {}, 원래 = Object.assign({}, 객체(전.포인트등급), 객체(d.포인트등급));
+    포인트.forEach((id) => {
+      const m = 멤버십찾기(id);
+      if (m.등급 && m.등급.includes(원래[id])) 포인트등급[id] = 원래[id];
+      else if (m.등급 && 글자(원래[id])) 보류.포인트등급[id] = 원래[id];
+    });
+    보류.포인트.forEach((id) => { if (글자(원래[id])) 보류.포인트등급[id] = 원래[id]; });
     const 생일월 = Number(d.생일월) >= 1 && Number(d.생일월) <= 12 ? Number(d.생일월) : null;
     const 카드 = [...new Set(Array.isArray(d.카드) ? d.카드.filter((id) => 카드찾기(id)) : [])];
     const 실적 = {}; if (d.실적 && typeof d.실적 === "object") 카드.forEach((id) => { if (typeof d.실적[id] === "string") 실적[id] = d.실적[id]; });
-    return { 통신사, 등급, 포인트, 포인트등급, 생일월, 등급추정: !!(등급 && d.등급추정), 설정완료: !!d.설정완료, 카드, 실적 };
+    return { 통신사, 등급, 포인트, 포인트등급, 생일월, 등급추정: !!(등급 && d.등급추정), 설정완료: !!d.설정완료, 카드, 실적, 보류 };
   }
   let 내정보 = 내정보정리(읽기(내정보키));
+  // 앱을 열 때마다 내가 고른 카드를 사전 최신 내용으로 다시 복사해 둠 → 나중에 사전에서 빠져도 남음
+  검색카드저장();
   function 내정보저장() { if (!쓰기(내정보키, 내정보)) 상태(저장실패안내); }
   function 내등급(id) { return 내정보.통신사 === id ? 내정보.등급 : 내정보.포인트등급[id] || null; }
   function 사용중(id) {
@@ -668,8 +707,16 @@
     if (검색어) 후보 = 매장들.filter(({ m }) => m.이름.toLowerCase().includes(검색어) || m.분류.toLowerCase().includes(검색어));
     else { const 있는것 = 매장들.filter((x) => x.n > 0 || x.m.이름 === 선택매장); if (있는것.length) { 숨김 = 매장들.length - 있는것.length; 후보 = 있는것; } }
     const 최근 = 최근읽기().filter((n) => 매장들.some((x) => x.m.이름 === n));
-    $("#recent").innerHTML = !검색어 && 최근.length
-      ? `<span class="recent-label">최근</span>` + 최근.map((n) => `<button class="cat-chip" data-name="${글(n)}">${아이콘((매장들.find((x) => x.m.이름 === n) || { m: {} }).m.분류)} ${글(n)}</button>`).join("") : "";
+    const 접힘 = !검색어 && !매장펼침;
+    $("#recent").innerHTML = 검색어 ? ""
+      : 최근.length
+        ? `<span class="recent-label">최근</span>` + 최근.map((n) => `<span class="rchip${n === 선택매장 ? " on" : ""}">` +
+            `<button type="button" data-name="${글(n)}">${아이콘((매장들.find((x) => x.m.이름 === n) || { m: {} }).m.분류)} ${글(n)}</button>` +
+            `<button type="button" class="rx" data-rm="${글(n)}" aria-label="${글(n)} 최근 기록에서 지우기" title="최근 기록에서 지우기">✕</button></span>`).join("")
+        : 접힘 ? `<span class="small">최근에 고른 매장이 여기에 모여요. 검색하거나 아래 '전체 매장 보기'를 눌러 골라 보세요.</span>` : "";
+    $("#foldBtn").hidden = !!검색어;
+    $("#foldBtn").textContent = 매장펼침 ? "▲ 매장 목록 접기" : `▼ 전체 매장 보기 (${후보.length}곳)`;
+    if (접힘) { $("#cats").innerHTML = ""; $("#chips").innerHTML = ""; $("#chipHint").textContent = ""; return; }
     const 분류들 = [...new Set(후보.map((x) => x.m.분류).filter(Boolean))];
     if (선택분류 && !분류들.includes(선택분류)) 선택분류 = "";
     $("#cats").innerHTML = 분류들.length > 1
@@ -846,7 +893,7 @@
           const c = 카드찾기(id); if (!c) return "";
           const 채움 = 내정보.실적[id] === 달;
           return `<div class="row"><span class="main">💳 ${글(c.이름)}</span>` +
-            `<span class="sub">${글(c.카드사)} · ${글(c.종류)} · 매장 혜택 ${c.혜택.length}개 · ${c.전월실적 > 0 ? "전월실적 " + 만원(c.전월실적) : "실적 조건 없음"}</span>` +
+            `<span class="sub">${글(c.카드사)} · ${글(c.종류)} · 매장 혜택 ${c.혜택.length}개 · ${c.전월실적 > 0 ? "전월실적 " + 만원(c.전월실적) : "실적 조건 없음"}${c.보관카드 ? " · 📦 " + 글(카드기준일(c)) + " 기준 복사본" : ""}</span>` +
             `<span class="chips" style="margin:6px 0 0">` +
             (c.전월실적 > 0 ? `<button class="chip sm${채움 ? " on" : ""}" data-perf="${글(id)}">${채움 ? "✓ 이번 달 실적 채웠어요" : "이번 달 실적 채웠어요?"}</button>` : "") +
             `<button class="chip sm" data-cardview="${글(id)}">혜택 보기</button><button class="chip sm" data-cardrm="${글(id)}">빼기</button></span></div>`;
@@ -914,7 +961,7 @@
       $("#w닫기").onclick = 시트닫기;
       $("#sheetBody").querySelectorAll("[data-w-carrier]").forEach((b) => b.onclick = () => {
         const id = b.dataset.wCarrier || null;
-        if (id !== 내정보.통신사) { 내정보.통신사 = id; 내정보.등급 = null; 내정보.등급추정 = false; }
+        if (id !== 내정보.통신사) { 내정보.통신사 = id; 내정보.등급 = null; 내정보.등급추정 = false; 내정보.보류.통신사 = null; 내정보.보류.등급 = null; }
         내정보저장(); 처음설정(id ? 2 : 3);
       });
     } else if (단계 === 2) {
@@ -1136,12 +1183,12 @@
       <div class="box" style="margin-top:0"><p><b>매장에 자동으로 붙는 혜택 ${c.혜택.length}개</b></p>
         ${c.혜택.length ? c.혜택.map((h) => `<p>• <b>${글(h.적용)}</b> — ${글(h.내용)}</p>`).join("") : `<p class="note">우리 앱의 매장과 연결되는 혜택이 없어요.</p>`}</div>
       ${c.기타.length ? `<div class="box"><p><b>그 밖의 혜택</b> <span class="small">(매장이 정해지지 않아 자동으로 붙이지 않아요)</span></p>${c.기타.map((t) => `<p>• ${글(t)}</p>`).join("")}</div>` : ""}
-      <p class="note" style="margin-top:10px">카드고릴라(카드 비교 사이트) ${글(카드기준일(c))} 기준이에요.${c.검색카드 ? " 인터넷에서 찾아 자동으로 넣은 카드예요." : ""} 정확한 조건은 카드사 앱에서 확인하세요. <a href="${글(c.출처)}" target="_blank" rel="noopener noreferrer">원문 보기</a></p>
+      <p class="note" style="margin-top:10px">카드고릴라(카드 비교 사이트) ${글(카드기준일(c))} 기준이에요.${c.검색카드 ? " 인터넷에서 찾아 자동으로 넣은 카드예요." : ""}${c.보관카드 ? " 지금은 카드 사전(인기 카드 목록)에서 빠진 카드라, 이 폰에 복사해 둔 내용을 보여 줘요." : ""} 정확한 조건은 카드사 앱에서 확인하세요. <a href="${글(c.출처)}" target="_blank" rel="noopener noreferrer">원문 보기</a></p>
       <button class="btn primary" id="p추가">${있음 ? "✓ 내 카드에 있어요 (빼기)" : "내 카드에 추가"}</button>
       <button class="btn" id="p뒤로">${돌아가기 ? "← 목록으로" : "닫기"}</button>`);
     $("#p추가").onclick = () => {
       if (있음) 내정보.카드 = 내정보.카드.filter((x) => x !== id); else 내정보.카드 = 내정보.카드.concat(id);
-      내정보저장(); if (c.검색카드) 검색카드저장(); 새로그리기();
+      내정보저장(); 검색카드저장(); 새로그리기();
       상태(있음 ? `${c.이름}을(를) 내 카드에서 뺐어요.` : `✅ ${c.이름}을(를) 추가했어요. 매장 혜택 ${c.혜택.length}개가 자동으로 붙었어요.`);
       if (돌아가기) 돌아가기(); else 시트닫기();
     };
@@ -1288,7 +1335,7 @@
       $("#sheetBody").querySelectorAll("[data-mpick]").forEach((b) => b.onclick = () => {
         const m = 멤버십찾기(b.dataset.mpick);
         if (m.분류 === "통신사") {
-          if (내정보.통신사 !== m.id) { 내정보.통신사 = m.id; 내정보.등급 = null; 내정보.등급추정 = false; }
+          if (내정보.통신사 !== m.id) { 내정보.통신사 = m.id; 내정보.등급 = null; 내정보.등급추정 = false; 내정보.보류.통신사 = null; 내정보.보류.등급 = null; }
           내정보저장(); 시트닫기(); 화면전환("member"); 상태(`✅ ${m.이름}을(를) 골랐어요. 아래에서 등급을 골라주세요.`); return;
         }
         const 있음 = 내정보.포인트.includes(m.id);
@@ -1511,7 +1558,12 @@
   $("#search").addEventListener("input", 매장버튼그리기);
   $("#setupBanner").addEventListener("click", (e) => { const b = e.target.closest("[data-go]"); if (!b) return; if (b.dataset.go === "wizard") 처음설정(1); else 화면전환(b.dataset.go); });
   $("#leftPanel").addEventListener("click", 썼어요처리);
-  $("#recent").addEventListener("click", (e) => { const b = e.target.closest("[data-name]"); if (b) 매장선택(b.dataset.name, true); });
+  $("#recent").addEventListener("click", (e) => {
+    const x = e.target.closest("[data-rm]");
+    if (x) { const 이름 = x.dataset.rm; 쓰기(최근키, 최근읽기().filter((n) => n !== 이름)); 매장버튼그리기(); 상태(`'${이름}'을(를) 최근 기록에서 지웠어요.`); return; }
+    const b = e.target.closest("[data-name]"); if (b) 매장선택(b.dataset.name, true);
+  });
+  $("#foldBtn").addEventListener("click", () => { 매장펼침 = !매장펼침; 매장버튼그리기(); });
   $("#cats").addEventListener("click", (e) => { const b = e.target.closest("[data-cat]"); if (b) { 선택분류 = b.dataset.cat; 매장버튼그리기(); } });
   $("#chips").addEventListener("click", (e) => { const b = e.target.closest(".chip"); if (b) 매장선택(b.dataset.name, true); });
   $("#result").addEventListener("click", (e) => {
@@ -1531,11 +1583,11 @@
     if (pf) { const id = pf.dataset.perf; if (내정보.실적[id] === 기간키().월) delete 내정보.실적[id]; else 내정보.실적[id] = 기간키().월; 내정보저장(); 새로그리기(); 상태(내정보.실적[id] ? "✅ 이번 달 실적을 채웠다고 표시했어요. 카드 혜택을 추천에 넣어요." : "실적 표시를 취소했어요."); return; }
     const cv = e.target.closest("[data-cardview]"); if (cv) return 카드미리보기(cv.dataset.cardview);
     const cr = e.target.closest("[data-cardrm]");
-    if (cr) { const c = 카드찾기(cr.dataset.cardrm); if (!confirm(`'${c.이름}'을(를) 내 카드에서 뺄까요?`)) return; 내정보.카드 = 내정보.카드.filter((x) => x !== c.id); delete 내정보.실적[c.id]; 내정보저장(); 새로그리기(); 상태(`${c.이름}을(를) 뺐어요.`); return; }
+    if (cr) { const c = 카드찾기(cr.dataset.cardrm); if (!confirm(`'${c.이름}'을(를) 내 카드에서 뺄까요?`)) return; 내정보.카드 = 내정보.카드.filter((x) => x !== c.id); delete 내정보.실적[c.id]; 내정보저장(); 검색카드저장(); 새로그리기(); 상태(`${c.이름}을(를) 뺐어요.`); return; }
     const c = e.target.closest("[data-carrier]");
     if (c) {
       const id = c.dataset.carrier || null;
-      if (id !== 내정보.통신사) { 내정보.통신사 = id; 내정보.등급 = null; 내정보.등급추정 = false; }
+      if (id !== 내정보.통신사) { 내정보.통신사 = id; 내정보.등급 = null; 내정보.등급추정 = false; 내정보.보류.통신사 = null; 내정보.보류.등급 = null; }
       내정보저장(); 새로그리기(); 상태(id ? `✅ ${멤버십찾기(id).이름}을(를) 골랐어요. 아래에서 등급도 골라주세요.` : "통신사 멤버십을 쓰지 않도록 했어요."); return;
     }
     const g = e.target.closest("[data-grade]");
