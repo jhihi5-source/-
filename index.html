@@ -1,0 +1,1587 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="모아일">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#2b59f5">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<title>모아일</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f3f5f9; --card: #ffffff; --card2: #f2f4f8; --text: #161a21; --sub: #667085;
+    --line: #e4e7ec; --accent: #2b59f5; --accent-2: #6f8cff; --accent-weak: #e9eeff;
+    --ok: #0f8a5f; --ok-weak: #e3f6ee; --warn: #b54708; --warn-weak: #fff3e0; --danger: #d92d20; --danger-weak: #fdecea;
+    --shade: rgba(15, 20, 30, .45); --shadow: 0 1px 2px rgba(16,24,40,.05), 0 4px 14px rgba(16,24,40,.06);
+    --hero-a: #2b59f5; --hero-b: #6f8cff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0f1115; --card: #191c22; --card2: #22262e; --text: #eef1f5; --sub: #9aa3af;
+      --line: #2b3039; --accent: #7a9bff; --accent-2: #5b7cff; --accent-weak: #1c2742;
+      --ok: #4cd4a0; --ok-weak: #12301f; --warn: #fbbf4b; --warn-weak: #33260f; --danger: #ff7b72; --danger-weak: #3a1715;
+      --shade: rgba(0,0,0,.6); --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+      --hero-a: #2a45b0; --hero-b: #4b66d6;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0f1115; --card: #191c22; --card2: #22262e; --text: #eef1f5; --sub: #9aa3af;
+    --line: #2b3039; --accent: #7a9bff; --accent-2: #5b7cff; --accent-weak: #1c2742;
+    --ok: #4cd4a0; --ok-weak: #12301f; --warn: #fbbf4b; --warn-weak: #33260f; --danger: #ff7b72; --danger-weak: #3a1715;
+    --shade: rgba(0,0,0,.6); --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+    --hero-a: #2a45b0; --hero-b: #4b66d6;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  [hidden] { display: none !important; }
+  html, body { background: var(--bg); }
+  body {
+    margin: 0; color: var(--text); line-height: 1.5; -webkit-text-size-adjust: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif;
+    padding: 0 16px calc(32px + env(safe-area-inset-bottom));
+  }
+  body.noscroll { overflow: hidden; }
+  main { max-width: 560px; margin: 0 auto; }
+  a { color: var(--accent); word-break: break-all; }
+  button { font-family: inherit; }
+
+  .top-bar { position: sticky; top: 0; z-index: 5; background: var(--bg); margin: 0 -16px;
+             padding: calc(env(safe-area-inset-top) + 10px) 16px 10px; }
+  .top-row { max-width: 560px; margin: 0 auto; display: flex; align-items: center; gap: 10px; }
+  .logo { width: 34px; height: 34px; border-radius: 10px; flex: 0 0 34px; display: grid; place-items: center;
+          background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; font-size: 18px; }
+  h1 { font-size: 20px; margin: 0; flex: 1; letter-spacing: -0.3px; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--card);
+              color: var(--text); font-size: 19px; cursor: pointer; display: grid; place-items: center; box-shadow: var(--shadow); }
+  .tabs { max-width: 560px; margin: 10px auto 0; display: flex; gap: 4px; background: var(--card); border: 1px solid var(--line);
+          border-radius: 14px; padding: 4px; box-shadow: var(--shadow); }
+  .tabs button { flex: 1; border: 0; background: none; color: var(--sub); font-size: 15px; padding: 9px 4px; border-radius: 10px; cursor: pointer; }
+  .tabs button.on { background: var(--accent); color: #fff; font-weight: 700; }
+
+  .status { color: var(--sub); font-size: 14px; margin: 10px 0; min-height: 21px; }
+  .error { background: var(--warn-weak); color: var(--warn); border-radius: 12px; padding: 12px; margin: 12px 0; font-size: 15px; }
+  .banner { background: var(--accent-weak); border-radius: 14px; padding: 14px; margin-bottom: 12px; font-size: 15px; }
+  .banner button { display: block; margin-top: 10px; border: 0; background: var(--accent); color: #fff; font-size: 15px; font-weight: 700; padding: 10px 16px; border-radius: 10px; cursor: pointer; }
+
+  input, select, textarea {
+    width: 100%; padding: 12px 14px; font-size: 16px; border: 1px solid var(--line);
+    border-radius: 12px; background: var(--card); color: var(--text); font-family: inherit;
+  }
+  textarea { min-height: 140px; font-size: 13px; font-family: ui-monospace, Consolas, monospace; }
+  .search { position: relative; }
+  .search input { padding-left: 40px; box-shadow: var(--shadow); }
+  .search span { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; opacity: .6; }
+
+  .hscroll { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 10px 16px 2px; }
+  .hscroll::-webkit-scrollbar { display: none; }
+  .cat-chip { flex: 0 0 auto; border: 0; background: var(--card2); color: var(--sub); padding: 7px 12px; border-radius: 999px; font-size: 14px; cursor: pointer; }
+  .cat-chip.on { background: var(--text); color: var(--bg); font-weight: 700; }
+  .recent-label { flex: 0 0 auto; color: var(--sub); font-size: 13px; align-self: center; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+  .chip { border: 1px solid var(--line); background: var(--card); color: var(--text); padding: 8px 12px; border-radius: 999px; font-size: 15px; cursor: pointer; }
+  .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .chip .n { opacity: .65; font-size: 13px; margin-left: 3px; }
+
+  h2 { font-size: 20px; margin: 0; }
+  h3 { font-size: 18px; margin: 0 0 12px; }
+  .head { display: flex; justify-content: space-between; align-items: center; margin: 26px 0 8px; }
+  .head h2 { font-size: 17px; }
+  .head button { border: 0; background: var(--accent-weak); color: var(--accent); font-size: 14px; font-weight: 700; padding: 7px 12px; border-radius: 10px; cursor: pointer; }
+
+  /* 이번 달 남은 혜택 */
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; margin-bottom: 12px; box-shadow: var(--shadow); overflow: hidden; }
+  .panel summary { list-style: none; cursor: pointer; padding: 13px 14px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .panel summary::-webkit-details-marker { display: none; }
+  .panel summary .more { color: var(--sub); font-size: 13px; font-weight: 500; white-space: nowrap; }
+  .panel .inner { padding: 0 14px 12px; }
+  .left-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); }
+  .left-row .t { flex: 1; min-width: 0; font-size: 14px; }
+  .left-row .t b { display: block; font-size: 14px; }
+  .left-row .t span { color: var(--sub); font-size: 13px; }
+  .left-row.done .t { opacity: .5; }
+  .mini { border: 0; border-radius: 10px; padding: 7px 10px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .mini.use { background: var(--accent); color: #fff; }
+  .mini.undo { background: var(--card2); color: var(--sub); }
+  .month-end { background: var(--warn-weak); color: var(--warn); border-radius: 10px; padding: 8px 10px; font-size: 13px; margin-bottom: 6px; }
+
+  /* 매장 결과 */
+  .store-card { background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); color: #fff; border-radius: 18px; padding: 16px; margin: 18px 0 12px; box-shadow: var(--shadow); }
+  .store-card .s-top { display: flex; align-items: center; gap: 12px; }
+  .store-card .s-icon { width: 46px; height: 46px; border-radius: 14px; background: rgba(255,255,255,.2); display: grid; place-items: center; font-size: 24px; flex: 0 0 46px; }
+  .store-card h2 { font-size: 21px; }
+  .store-card .s-cat { opacity: .85; font-size: 14px; }
+  .store-card .s-sum { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .store-card .pill { background: rgba(255,255,255,.18); border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 600; }
+
+  .doit { background: var(--card); border: 2px solid var(--accent); border-radius: 16px; padding: 14px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .doit h4 { margin: 0 0 4px; font-size: 16px; }
+  .doit .best { font-size: 15px; margin-bottom: 8px; }
+  .doit .best b { color: var(--accent); }
+  .step { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px dashed var(--line); font-size: 15px; }
+  .step .no { flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: 800; }
+  .step.pre .no { background: var(--warn); }
+  .step.done .no { background: var(--ok); }
+  .doit .note2 { font-size: 13px; padding: 8px 10px; border-radius: 10px; margin-top: 8px; }
+  .note2.caution { background: var(--warn-weak); color: var(--warn); }
+  .note2.info { background: var(--card2); color: var(--sub); }
+  .note2.ok { background: var(--ok-weak); color: var(--ok); }
+
+  .group { background: var(--card); border: 1px solid var(--line); border-radius: 16px; margin-bottom: 12px; overflow: hidden; box-shadow: var(--shadow); }
+  .ghead { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px 0; gap: 8px; }
+  .gname { font-weight: 800; font-size: 16px; }
+  .gsub { color: var(--sub); font-size: 13px; white-space: nowrap; }
+  .bf { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; cursor: pointer; }
+  .bf + .bf, .extra-label + .bf { border-top: 1px dashed var(--line); }
+  .bf.used { opacity: .55; }
+  .extra-label { font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-weak); padding: 5px 14px; }
+  .rate { flex: 0 0 62px; text-align: center; font-weight: 800; font-size: 19px; color: var(--accent); background: var(--accent-weak); border-radius: 12px; padding: 8px 4px; }
+  .rate small { display: block; font-size: 11px; font-weight: 600; }
+  .rate.none { color: var(--sub); background: var(--card2); font-size: 13px; padding: 15px 4px; }
+  .rate.small-rate { flex-basis: 52px; font-size: 16px; padding: 6px 2px; }
+  .body { flex: 1; min-width: 0; }
+  .desc { font-weight: 600; }
+  .tags { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-left: 4px; vertical-align: middle; }
+  .tag { font-size: 11px; border: 1px solid var(--line); border-radius: 6px; padding: 0 6px; color: var(--sub); font-weight: 500; }
+  .tag.warn { border-color: var(--warn); color: var(--warn); }
+  .tag.mine { border-color: var(--ok); color: var(--ok); }
+  .tag.bday { border-color: #e0527a; color: #e0527a; }
+  .cond { color: var(--sub); font-size: 13px; margin-top: 2px; }
+  .how { display: inline-block; font-size: 13px; font-weight: 700; margin-top: 6px; padding: 4px 8px; border-radius: 8px; background: var(--accent-weak); color: var(--accent); }
+  .line { font-size: 13px; margin-top: 6px; padding: 6px 8px; border-radius: 8px; }
+  .line.pre { background: var(--warn-weak); color: var(--warn); font-weight: 600; }
+  .line.no { background: var(--danger-weak); color: var(--danger); }
+  .line.mix { background: var(--card2); color: var(--sub); }
+  .line.tip { background: var(--ok-weak); color: var(--ok); }
+  .line.rec { background: var(--warn-weak); color: var(--warn); }
+  .line.cnt { background: var(--card2); color: var(--text); display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+
+  .combo { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .combo h4 { margin: 0 0 8px; font-size: 15px; }
+  .combo .c { font-size: 14px; padding: 8px 10px; border-radius: 10px; margin-top: 6px; }
+  .combo .c.ok { background: var(--ok-weak); color: var(--ok); }
+  .combo .c.caution { background: var(--warn-weak); color: var(--warn); }
+  .combo .c.maybe { background: var(--card2); color: var(--sub); }
+
+  .empty { color: var(--sub); text-align: center; padding: 24px 0; }
+  .rows { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
+  .row { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--text); padding: 12px 14px; font-size: 15px; cursor: pointer; }
+  .row:last-child { border-bottom: 0; }
+  .row .main { font-weight: 700; }
+  .row .sub { display: block; color: var(--sub); font-size: 13px; }
+  .btn { display: block; width: 100%; padding: 13px; font-size: 15px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); color: var(--text); margin-top: 10px; cursor: pointer; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+  .btn.danger { color: var(--danger); }
+  .btn.small { padding: 9px; font-size: 14px; }
+  .small, .note { color: var(--sub); font-size: 13px; }
+  .small { text-align: center; margin-top: 8px; }
+  .note { margin: 0 0 12px; }
+  .box { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin-top: 18px; font-size: 14px; box-shadow: var(--shadow); }
+  .box p { margin: 0 0 6px; }
+  .box p:last-child { margin: 0; }
+  .subgrade { margin: -2px 0 8px 10px; padding-left: 10px; border-left: 3px solid var(--accent-weak); }
+  .dl { margin: 0 0 12px; }
+  .dl div { margin-bottom: 10px; }
+  .dl b { display: block; font-size: 13px; color: var(--sub); font-weight: 600; }
+  .recs { margin: 8px 0; }
+  .rec-row { display: flex; gap: 8px; align-items: center; background: var(--warn-weak); color: var(--warn); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; font-size: 14px; }
+  .rec-row span { flex: 1; }
+  .rec-row button { border: 0; background: none; color: var(--warn); font-size: 13px; text-decoration: underline; cursor: pointer; }
+
+  /* 처음 설정 & 큰 타일 */
+  .wiz-step { color: var(--accent); font-weight: 800; font-size: 13px; margin-bottom: 4px; }
+  .wiz-q { font-size: 22px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.4px; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+  .tile { border: 2px solid var(--line); background: var(--card); color: var(--text); border-radius: 16px; padding: 16px 12px; font-size: 17px; font-weight: 800; cursor: pointer; text-align: left; min-height: 70px; }
+  .tile small { display: block; font-size: 12px; font-weight: 500; color: var(--sub); margin-top: 2px; }
+  .tile.on { border-color: var(--accent); background: var(--accent-weak); }
+  .tile.on::after { content: " ✓"; color: var(--accent); }
+  .tile.wide { grid-column: 1 / -1; }
+  .months { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0; }
+  .months button { padding: 12px 0; font-size: 16px; font-weight: 700; border-radius: 12px; border: 2px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; }
+  .months button.on { border-color: var(--accent); background: var(--accent-weak); color: var(--accent); }
+  .wiz-nav { display: flex; gap: 8px; margin-top: 8px; }
+  .wiz-nav .btn { margin-top: 0; }
+
+  /* 혜택 추가 폼 */
+  .fsec { margin: 16px 0; }
+  .fsec > b { display: block; font-size: 15px; margin-bottom: 6px; }
+  .fsel { background: var(--accent-weak); color: var(--accent); border-radius: 10px; padding: 8px 10px; font-weight: 700; margin-bottom: 8px; }
+  .pick { max-height: 180px; overflow-y: auto; }
+  .chip.sm { padding: 6px 10px; font-size: 14px; }
+
+  .steps-ol { margin: 8px 0 12px; padding-left: 20px; }
+  .steps-ol li { margin-bottom: 6px; }
+
+  .sheet { position: fixed; inset: 0; background: var(--shade); display: flex; align-items: flex-end; justify-content: center; z-index: 10; }
+  .sheet-inner { background: var(--bg); width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
+                 border-radius: 20px 20px 0 0; padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); }
+  label { display: block; font-size: 14px; color: var(--sub); margin-bottom: 12px; }
+  label input, label select { margin-top: 4px; }
+  .formmsg { color: var(--danger); font-size: 14px; min-height: 0; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <div class="top-row">
+    <div class="logo" aria-hidden="true">🎁</div>
+    <h1>모아일</h1>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="화면 밝기 바꾸기">🌓</button>
+  </div>
+  <nav class="tabs">
+    <button data-view="find" class="on">혜택 찾기</button>
+    <button data-view="member">내 멤버십</button>
+    <button data-view="manage">직접 관리</button>
+  </nav>
+</div>
+<main>
+  <div class="status" id="status"></div>
+  <div id="errorBox"></div>
+
+  <!-- ===== 화면 1: 혜택 찾기 ===== -->
+  <div id="view-find">
+    <div id="setupBanner"></div>
+    <div id="leftPanel"></div>
+    <div class="search"><span>🔍</span><input type="search" id="search" placeholder="어디서 결제하세요? (예: 파리바게뜨)" autocomplete="off"></div>
+    <div class="hscroll" id="recent"></div>
+    <div class="hscroll" id="cats"></div>
+    <div class="chips" id="chips"></div>
+    <div class="small" id="chipHint"></div>
+    <section id="result"></section>
+    <button class="btn" id="findBtn">📍 내 위치로 매장 다시 찾기</button>
+  </div>
+
+  <!-- ===== 화면 2: 내 멤버십 ===== -->
+  <div id="view-member" hidden>
+    <button class="btn primary" id="wizBtn">✨ 처음 설정 다시 하기 (3단계)</button>
+    <button class="btn" id="installBtn">📲 홈 화면에 앱으로 설치하기</button>
+    <div class="head"><h2>📱 통신사</h2></div>
+    <div class="chips" id="carrierChips"></div>
+    <div id="gradeBox"></div>
+    <div id="pointBox"></div>
+    <div class="head"><h2>💳 내 카드</h2><button id="cardAddBtn">+ 카드 추가</button></div>
+    <div id="cardBox"></div>
+    <div class="head"><h2>🎂 생일 달</h2></div>
+    <p class="note">생일 달에는 생일 혜택을 맨 위에 알려드려요.</p>
+    <div class="months" id="bdayBox"></div>
+    <div class="box" id="dictInfo"></div>
+  </div>
+
+  <!-- ===== 화면 3: 직접 관리 ===== -->
+  <div id="view-manage" hidden>
+    <p class="note">통신사·포인트 혜택은 자동으로 들어와요. 여기는 <b>카드 혜택처럼 사전에 없는 것</b>을 넣는 곳이에요. 고르기만 하면 돼요.</p>
+    <div class="head"><h2>내가 넣은 혜택</h2><button data-act="addBenefit">+ 추가</button></div>
+    <div id="benefitList"></div>
+    <div class="head"><h2>내가 넣은 매장</h2><button data-act="addStore">+ 추가</button></div>
+    <p class="note">자주 가는 매장 60여 곳은 이미 들어 있어요. 없는 매장만 추가하세요.</p>
+    <div id="storeList"></div>
+    <div class="head"><h2>"여기서 안 됐어요" 기록</h2></div>
+    <div id="recList"></div>
+    <div class="head"><h2>백업</h2></div>
+    <p class="note">폰을 바꾸거나 저장한 내용이 지워질 때를 대비해 가끔 내보내 두세요.</p>
+    <button class="btn" data-act="export">📤 목록 내보내기</button>
+    <button class="btn" data-act="import">📥 목록 불러오기</button>
+    <div class="head"><h2>초기화</h2></div>
+    <button class="btn danger" data-act="clearBenefits">내가 넣은 혜택 모두 지우기</button>
+    <button class="btn danger" data-act="reset">처음 상태로 되돌리기</button>
+  </div>
+</main>
+
+<div class="sheet" id="sheet" hidden><div class="sheet-inner" id="sheetBody"></div></div>
+
+<script>
+  window.목록오류줄 = null;
+  window.사전오류줄 = null;
+  window.addEventListener("error", function (e) {
+    var 파일 = e.filename ? decodeURIComponent(e.filename) : "";
+    if (파일.indexOf("mylist") !== -1) window.목록오류줄 = e.lineno;
+    if (파일.indexOf("benefits") !== -1) window.사전오류줄 = e.lineno;
+    if (파일.indexOf("cards") !== -1) window.카드오류줄 = e.lineno;
+  });
+  (function () {
+    try { var t = localStorage.getItem("혜택앱_테마"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+  })();
+</script>
+<script src="mylist.js"></script>
+<script src="benefits.js"></script>
+<script src="cards.js"></script>
+
+<script>
+  // ===== 설정 =====
+  const 근처기준미터 = 200;
+  const 데이터키 = "혜택앱v3_내목록";
+  const 내정보키 = "혜택앱v3_내정보";
+  const 기록키 = "혜택앱v4_내기록";
+  const 사용키 = "혜택앱v5_사용";
+  const 최근키 = "혜택앱_최근";
+  const 위치키 = "혜택앱_기억한위치";
+  const 테마키 = "혜택앱_테마";
+  const 분류아이콘 = { 카페: "☕", 디저트: "🍦", 베이커리: "🥐", 편의점: "🏪", 피자: "🍕", 치킨: "🍗", 패스트푸드: "🍔",
+    외식: "🍽️", 영화관: "🎬", 마트: "🛒", 뷰티: "💄", "놀이·관광": "🎢", 키즈: "🧸", 온라인: "📦", 배달: "🛵" };
+  const 아이콘 = (분류) => 분류아이콘[분류] || "🏬";
+  const 방법표시 = { 바코드: ["📱", "바코드"], 번호입력: ["🔢", "번호 입력"], 쿠폰: ["🎟️", "쿠폰 먼저"], 예매: ["🌐", "앱·웹 예매"],
+    신분증: ["🪪", "신분증 필요"], 앱결제: ["💳", "앱으로 결제"], 자동: ["⚡", "자동 적용"], 카드결제: ["💳", "그 카드로 결제"] };
+  const 카드사들 = ["신한", "삼성", "현대", "KB국민", "롯데", "하나", "우리", "NH농협", "BC", "IBK기업", "카카오뱅크", "토스뱅크", "케이뱅크"];
+
+  const $ = (s) => document.querySelector(s);
+  let 선택매장 = null, 선택분류 = "";
+
+  function 글(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function 상태(메시지) { $("#status").textContent = 메시지; }
+  function 새ID() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  function 읽기(키) { try { const v = localStorage.getItem(키); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+  function 쓰기(키, 값) { try { localStorage.setItem(키, JSON.stringify(값)); return true; } catch (e) { return false; } }
+  const 저장실패안내 = "⚠️ 폰에 저장하지 못했어요. 사파리 개인정보 보호(시크릿) 모드인지 확인해 주세요.";
+  const 지금 = new Date();
+  const 이번달 = 지금.getMonth() + 1;
+  function 오늘() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+  function 기간키() {
+    const d = new Date(), y = d.getFullYear();
+    const t = new Date(Date.UTC(y, d.getMonth(), d.getDate())); const 요일 = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - 요일); const 주 = Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 86400000 + 1) / 7);
+    return { 월: `${y}-${String(d.getMonth() + 1).padStart(2, "0")}`, 연: String(y), 주: `${t.getUTCFullYear()}-W${주}` };
+  }
+  const 남은날 = new Date(지금.getFullYear(), 지금.getMonth() + 1, 0).getDate() - 지금.getDate();
+
+  // ===== 화면 밝기 =====
+  const 테마순서 = ["auto", "light", "dark"];
+  const 테마표시 = { auto: ["🌓", "자동 (폰 설정 따라감)"], light: ["☀️", "주간 모드"], dark: ["🌙", "야간 모드"] };
+  function 지금테마() { try { const t = localStorage.getItem(테마키); return 테마순서.includes(t) ? t : "auto"; } catch (e) { return "auto"; } }
+  function 테마적용(t) {
+    if (t === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
+    $("#themeBtn").textContent = 테마표시[t][0]; $("#themeBtn").title = "화면 밝기: " + 테마표시[t][1];
+  }
+  $("#themeBtn").addEventListener("click", () => {
+    const 다음 = 테마순서[(테마순서.indexOf(지금테마()) + 1) % 테마순서.length];
+    try { localStorage.setItem(테마키, 다음); } catch (e) {}
+    테마적용(다음); 상태("화면 밝기: " + 테마표시[다음][1]);
+  });
+  테마적용(지금테마());
+
+  // ===== 혜택 사전 =====
+  const 사전있음 = typeof 혜택사전 !== "undefined" && typeof 사전멤버십 !== "undefined" && typeof 사전매장 !== "undefined";
+  const 사전_멤버십 = 사전있음 ? 사전멤버십 : [];
+  const 사전_매장 = 사전있음 ? 사전매장 : [];
+  const 사전_혜택 = 사전있음 ? 혜택사전 : [];
+  const 사전_연계 = 사전있음 && typeof 연계사전 !== "undefined" ? 연계사전 : [];
+  const 사전_기준일 = 사전있음 && typeof 사전정보 !== "undefined" ? 사전정보.기준일 : "";
+  const 사전_기본방법 = typeof 기본방법 !== "undefined" ? 기본방법 : {};
+  const 사전_보정 = typeof 방법보정 !== "undefined" ? 방법보정 : [];
+  const 사전_묶음 = typeof 횟수묶음 !== "undefined" ? 횟수묶음 : {};
+  function 멤버십찾기(id) { return 사전_멤버십.find((m) => m.id === id); }
+
+  // ===== 카드 사전 (cards.js) =====
+  const 카드있음 = typeof 카드사전 !== "undefined";
+  const 카드_목록 = 카드있음 ? 카드사전.map((c) => Object.assign({}, c, { 혜택: [].concat(c.혜택 || []), 기타: [].concat(c.기타 || []) })) : [];
+  const 카드_기준일 = 카드있음 && typeof 카드정보 !== "undefined" ? 카드정보.기준일 : "";
+  const 카드_추가매장 = typeof 카드추가매장 !== "undefined" ? 카드추가매장 : [];
+  function 카드찾기(id) { return 카드_목록.find((c) => c.id === id); }
+  // 카드고릴라에서 검색해 넣은 카드 (사전에 없는 카드) — 이 폰에 저장
+  const 검색카드키 = "혜택앱v8_검색카드";
+  function 검색카드합치기(목록) {
+    (Array.isArray(목록) ? 목록 : []).forEach((c) => {
+      if (c && typeof c === "object" && /^cg\d+$/.test(c.id) && !카드찾기(c.id))
+        카드_목록.push(Object.assign({}, c, { 혜택: [].concat(c.혜택 || []), 기타: [].concat(c.기타 || []), 검색카드: true }));
+    });
+  }
+  검색카드합치기(읽기(검색카드키));
+  function 검색카드들() { return 카드_목록.filter((c) => c.검색카드 && 내정보.카드.includes(c.id)); }
+  function 검색카드저장() { if (!쓰기(검색카드키, 검색카드들())) 상태(저장실패안내); }
+  function 카드기준일(c) { return (c && c.가져온날) || 카드_기준일; }
+  // 띄어쓰기·대소문자 무시하고 카드 이름 찾기 (예: '현대카드 m' → 현대카드M)
+  function 이름맞음(이름, 검색) { const 줄 = (s) => String(s || "").replace(/\s/g, "").toLowerCase(); return 줄(이름).includes(줄(검색)); }
+  function 만원(n) { return (n / 10000).toLocaleString() + "만원"; }
+  const 통신사목록 = 사전_멤버십.filter((m) => m.분류 === "통신사");
+  const 기타목록 = 사전_멤버십.filter((m) => m.분류 !== "통신사");
+
+  // 사전 혜택마다 쓰는 방법·미리·횟수·생일 붙이기
+  const 사전_보강 = 사전_혜택.map((h) => {
+    const r = { 방법: 사전_기본방법[h.멤버십] || ["바코드", "결제 전에 멤버십 바코드를 보여주세요"], 미리: "", 횟수: null, 생일: false };
+    사전_보정.forEach((p) => {
+      if (p.멤버십 !== h.멤버십) return;
+      if (p.적용 && p.적용 !== h.적용) return;
+      if (p.내용 && p.내용 !== h.내용) return;
+      if (p.내용포함 && !(h.내용 || "").includes(p.내용포함)) return;
+      ["방법", "미리", "횟수", "생일"].forEach((k) => { if (p[k] !== undefined) r[k] = p[k]; });
+    });
+    return r;
+  });
+
+  // 매장마다 어떤 멤버십이 있는지 (처음 설정 설명용)
+  function 멤버십대표매장(id) { return [...new Set(사전_혜택.filter((h) => h.멤버십 === id).map((h) => h.적용))].slice(0, 3).join("·"); }
+
+  // ===== 내 멤버십 설정 =====
+  function 내정보정리(d) {
+    d = d && typeof d === "object" ? d : {};
+    const 통신사 = 통신사목록.some((m) => m.id === d.통신사) ? d.통신사 : null;
+    const 등급 = 통신사 && (멤버십찾기(통신사).등급 || []).includes(d.등급) ? d.등급 : null;
+    const 포인트 = [...new Set(Array.isArray(d.포인트) ? d.포인트.filter((id) => 기타목록.some((m) => m.id === id)) : [])];
+    const 포인트등급 = {}, 원래 = d.포인트등급 && typeof d.포인트등급 === "object" ? d.포인트등급 : {};
+    포인트.forEach((id) => { const m = 멤버십찾기(id); if (m.등급 && m.등급.includes(원래[id])) 포인트등급[id] = 원래[id]; });
+    const 생일월 = Number(d.생일월) >= 1 && Number(d.생일월) <= 12 ? Number(d.생일월) : null;
+    const 카드 = [...new Set(Array.isArray(d.카드) ? d.카드.filter((id) => 카드찾기(id)) : [])];
+    const 실적 = {}; if (d.실적 && typeof d.실적 === "object") 카드.forEach((id) => { if (typeof d.실적[id] === "string") 실적[id] = d.실적[id]; });
+    return { 통신사, 등급, 포인트, 포인트등급, 생일월, 등급추정: !!(등급 && d.등급추정), 설정완료: !!d.설정완료, 카드, 실적 };
+  }
+  let 내정보 = 내정보정리(읽기(내정보키));
+  function 내정보저장() { if (!쓰기(내정보키, 내정보)) 상태(저장실패안내); }
+  function 내등급(id) { return 내정보.통신사 === id ? 내정보.등급 : 내정보.포인트등급[id] || null; }
+  function 사용중(id) {
+    const m = 멤버십찾기(id); if (!m) return false;
+    if (m.분류 === "통신사") return 내정보.통신사 === id && !!내정보.등급;
+    if (!내정보.포인트.includes(id)) return false;
+    return !m.등급 || !!내정보.포인트등급[id];
+  }
+  function 가장낮은등급(id) {
+    const m = 멤버십찾기(id); const gs = (m.등급 || []).slice().reverse();
+    return gs.find((g) => 사전_혜택.some((h) => h.멤버십 === id && (h.등급 || []).includes(g))) || gs[0];
+  }
+
+  function 사전혜택목록() {
+    const 짝수월 = 이번달 % 2 === 0;
+    const 결과 = [];
+    사전_혜택.forEach((h, i) => {
+      const m = 멤버십찾기(h.멤버십);
+      if (!m || !사용중(m.id)) return;
+      const g = 내등급(m.id);
+      if (h.등급 && h.등급.length && !h.등급.includes(g)) return;
+      const b = 사전_보강[i];
+      결과.push({
+        사전번호: i, 사전: true, 멤버십: m.id,
+        적용: h.적용, 수단: m.이름 + (g ? " " + g : ""),
+        종류: h.종류 || (m.분류 === "통신사" ? "멤버십" : "포인트적립"),
+        내용: h.내용 || "", 조건: h.조건 || "", 제외: h.제외 || "", 중복: h.중복 || "", 팁: h.팁 || "",
+        할인율: (짝수월 && h.짝수월할인율 ? h.짝수월할인율 : Number(h.할인율)) || 0,
+        출처: h.출처 || "", 신뢰: h.신뢰 || "공식",
+        방법종류: b.방법[0], 방법설명: b.방법[1], 미리: b.미리, 횟수: b.횟수, 생일: b.생일,
+        기록키: "d:" + h.멤버십 + "|" + h.적용 + "|" + h.내용,
+      });
+    });
+    return 결과;
+  }
+
+  function 카드혜택목록() {
+    const 달 = 기간키().월, 결과 = [];
+    내정보.카드.forEach((id) => {
+      const c = 카드찾기(id); if (!c) return;
+      const 카드실적필요 = c.전월실적 > 0 && 내정보.실적[id] !== 달;
+      c.혜택.forEach((h, i) => {
+        // 원문에 '실적 조건 없음'이 있는 혜택은 실적을 따지지 않음
+        const 핵심 = (h.상세 || "").split("유의사항")[0];
+        const 면제 = /(전월|지난달)?\s?(이용)?\s?실적\s?(조건)?\s?(없|무관|관계없|과 관계)|실적.{0,3}한도 제한 없/.test((h.내용 || "") + " " + 핵심);
+        const 실적필요 = 카드실적필요 && !면제;
+        const 앞 = /전월실적|실적 조건/.test(h.조건 || "") ? [] : [c.전월실적 > 0 && !면제 ? `전월실적 ${만원(c.전월실적)} 이상` : "전월실적 조건 없음"];
+        결과.push({
+          카드: true, 카드id: id, 카드번호: i, 멤버십: "card:" + id,
+          적용: h.적용, 수단: c.이름, 종류: h.형태 === "적립" ? "카드적립" : "카드할인",
+          내용: h.내용, 조건: 앞.concat(h.조건 ? [h.조건] : []).join(", "), 제외: h.제외 || "", 중복: "", 팁: "",
+          할인율: Number(h.할인율) || 0, 출처: c.출처, 신뢰: "비교사이트", 상세: h.상세 || "",
+          방법종류: "카드결제", 방법설명: `${c.이름}(으)로 결제하세요`, 미리: "",
+          횟수: h.횟수 && h.횟수.월 ? h.횟수 : null, 생일: false, 실적필요,
+          기록키: "c:" + id + "|" + h.적용 + "|" + h.내용,
+        });
+      });
+    });
+    return 결과;
+  }
+
+  // ===== 내가 넣은 데이터 =====
+  const 추가필드 = ["수단종류", "카드사", "카드이름", "수단이름", "형태", "값", "메모", "방법종류"];
+  function 데이터정리(d) {
+    const 매장들 = Array.isArray(d && d.매장목록) ? d.매장목록 : [];
+    const 혜택들 = Array.isArray(d && d.혜택목록) ? d.혜택목록 : [];
+    return {
+      매장목록: 매장들.filter((m) => m && String(m.이름 || "").trim())
+        .map((m) => ({ 이름: String(m.이름).trim(), 분류: String(m.분류 || "").trim(), 위치: Array.isArray(m.위치) ? m.위치 : [] })),
+      혜택목록: 혜택들.filter((h) => h && typeof h === "object").map((h) => {
+        const o = { id: h.id || 새ID(), 적용: String(h.적용 || "").trim(), 수단: String(h.수단 || "").trim(), 종류: String(h.종류 || "").trim(),
+          내용: String(h.내용 || "").trim(), 할인율: Number(h.할인율) || 0, 조건: String(h.조건 || "").trim(),
+          조건들: Array.isArray(h.조건들) ? h.조건들.map(String) : [], 횟수: h.횟수 && typeof h.횟수 === "object" ? h.횟수 : null };
+        추가필드.forEach((k) => { if (h[k] != null) o[k] = String(h[k]); });
+        return o;
+      }),
+    };
+  }
+  function 처음데이터() { return 데이터정리({ 매장목록: typeof 매장목록 !== "undefined" ? 매장목록 : [], 혜택목록: typeof 혜택목록 !== "undefined" ? 혜택목록 : [] }); }
+  function 데이터저장() { if (!쓰기(데이터키, 데이터)) 상태(저장실패안내); }
+  const 저장된것 = 읽기(데이터키);
+  let 데이터 = 데이터정리(저장된것 || 처음데이터());
+  if (!저장된것) 데이터저장();
+  function 내혜택보강(h) {
+    const 종류 = h.방법종류 || (h.수단종류 === "카드" ? "카드결제" : "바코드");
+    const 설명 = { 카드결제: `${h.수단}(으)로 결제하세요`, 바코드: `결제 전에 ${h.수단} 바코드를 보여주세요`, 쿠폰: `${h.수단} 쿠폰을 먼저 받아 두세요`,
+      번호입력: `${h.수단} 번호를 입력하세요`, 자동: "자동으로 적용돼요" }[종류] || "";
+    return Object.assign({}, h, { 방법종류: 종류, 방법설명: 설명, 기록키: "u:" + h.id, 미리: 종류 === "쿠폰" ? `${h.수단} 쿠폰 받아 두기` : "" });
+  }
+
+  function 기록읽기() { const d = 읽기(기록키); return d && typeof d === "object" ? d : {}; }
+  function 기록쓰기(d) { if (!쓰기(기록키, d)) 상태(저장실패안내); }
+
+  (function () {
+    const 안내 = [];
+    if (!사전있음) { const 줄 = window.사전오류줄 ? ` (${window.사전오류줄}번째 줄 근처)` : ""; 안내.push(`⚠️ 혜택 사전(benefits.js)을 읽지 못했어요${줄}. 자동 혜택 없이 직접 넣은 것만 보여요.`); }
+    if (!카드있음) { const 줄 = window.카드오류줄 ? ` (${window.카드오류줄}번째 줄 근처)` : ""; 안내.push(`⚠️ 카드 사전(cards.js)을 읽지 못했어요${줄}. 카드 목록 없이 직접 입력만 할 수 있어요.`); }
+    if (!저장된것 && typeof 매장목록 === "undefined") { const 줄 = window.목록오류줄 ? ` (${window.목록오류줄}번째 줄 근처)` : ""; 안내.push(`⚠️ mylist.js를 읽지 못했어요${줄}. 빈 목록으로 시작합니다.`); }
+    $("#errorBox").innerHTML = 안내.map((s) => `<div class="error">${글(s)}</div>`).join("");
+  })();
+
+  // ===== 남은 횟수 =====
+  function 사용읽기() { const d = 읽기(사용키); return d && typeof d === "object" ? d : {}; }
+  function 횟수정보(h) {
+    if (!h.횟수) return null;
+    let 키, 이름, 한도 = {};
+    if (h.횟수.묶음) {
+      const p = 사전_묶음[h.횟수.묶음]; if (!p) return null;
+      키 = "묶음:" + h.횟수.묶음; 이름 = p.이름;
+      if (p.월) 한도.월 = p.월;
+      if (p.연) 한도.연 = typeof p.연 === "object" ? p.연[내등급(h.멤버십)] : p.연;
+    } else { 키 = h.기록키; 이름 = h.적용 + " · " + (h.내용 || h.수단); ["월", "연", "주"].forEach((k) => { if (h.횟수[k]) 한도[k] = h.횟수[k]; }); }
+    const 기 = 기간키(), 쓴것 = 사용읽기()[키] || {};
+    const 상세 = Object.keys(한도).filter((k) => 한도[k]).map((k) => ({ 단위: k, 쓴: 쓴것[기[k]] || 0, 한도: 한도[k] }));
+    if (!상세.length) return null;
+    return { 키, 이름, 상세, 다씀: 상세.some((x) => x.쓴 >= x.한도) };
+  }
+  function 횟수글(정보) {
+    const 말 = { 월: "이번 달", 연: "올해", 주: "이번 주" };
+    return 정보.상세.map((x) => `${말[x.단위]} ${x.쓴}/${x.한도}`).join(" · ");
+  }
+  function 사용바꾸기(키, 상세단위들, 더하기) {
+    const d = 사용읽기(), 기 = 기간키(); d[키] = d[키] || {};
+    상세단위들.forEach((u) => { const k = 기[u]; d[키][k] = Math.max(0, (d[키][k] || 0) + (더하기 ? 1 : -1)); });
+    if (!쓰기(사용키, d)) 상태(저장실패안내);
+  }
+  function 남은목록() {
+    const 모두 = 사전혜택목록().concat(데이터.혜택목록.map(내혜택보강));
+    const 본것 = new Map();
+    모두.forEach((h) => { const 정보 = 횟수정보(h); if (!정보 || 본것.has(정보.키)) return; if (h.생일 && 내정보.생일월 !== 이번달) return; 본것.set(정보.키, { h, 정보 }); });
+    return [...본것.values()].sort((a, b) => (a.정보.다씀 - b.정보.다씀));
+  }
+
+  // ===== 매장 =====
+  function 전체매장() {
+    const 목록 = 데이터.매장목록.map((m) => Object.assign({}, m, { 내것: true }));
+    사전_매장.concat(카드_추가매장).forEach((m) => { if (!목록.some((x) => x.이름 === m.이름)) 목록.push({ 이름: m.이름, 분류: m.분류 || "", 위치: [], 내것: false }); });
+    return 목록;
+  }
+  function 분류목록() { return [...new Set(전체매장().map((m) => m.분류).filter(Boolean))]; }
+  function 모든혜택() { return 데이터.혜택목록.map(내혜택보강).concat(사전혜택목록(), 카드혜택목록()); }
+  function 혜택찾기(매장, 목록) {
+    return (목록 || 모든혜택())
+      .filter((h) => h.적용 === 매장.이름 || (매장.분류 && h.적용 === 매장.분류 + " 전체") || h.적용 === "모든 매장")
+      .sort((a, b) => (b.할인율 || 0) - (a.할인율 || 0) || (a.신뢰 === "공식" ? -1 : 0) - (b.신뢰 === "공식" ? -1 : 0));
+  }
+  function 연계찾기(매장) {
+    const 결과 = [];
+    사전_연계.forEach((x) => {
+      if (x.적용 !== 매장.이름 || !Array.isArray(x.조합) || !x.조합.length) return;
+      const 첫 = x.조합[0];
+      if (!사용중(첫)) return;
+      if (x.등급 && !x.등급.includes(내등급(첫))) return;
+      const 없음 = x.조합.slice(1).filter((id) => !사용중(id));
+      if (없음.length && x.종류 === "주의") return;
+      결과.push({ x, 없음 });
+    });
+    return 결과;
+  }
+  function 생일대기(h) { return h.생일 && 내정보.생일월 !== 이번달; }
+  // '매주 화요일'처럼 요일이 정해진 혜택: 오늘이 아니면 추천에서 뺌
+  const 요일글자 = "일월화수목금토";
+  function 정해진요일(h) {
+    const 글 = (h.내용 || "") + " " + (h.조건 || "");
+    const 찾음 = [...글.matchAll(/([월화수목금토일])요일/g)].map((m) => m[1]);
+    return 찾음.length ? [...new Set(찾음)] : null;
+  }
+  function 오늘아님(h) { const d = 정해진요일(h); return (!!d && !d.includes(요일글자[new Date().getDay()])) || 지금아님(h); }
+  // '오후 9시 ~ 오전 9시'처럼 시간이 정해진 혜택
+  function 정해진시간(h) {
+    const ms = [...((h.내용 || "") + " " + (h.조건 || "")).matchAll(/(오전|오후)\s?(\d+)시\s?~\s?(오전|오후)\s?(\d+)시/g)];
+    if (!ms.length) return null;
+    const 시 = (오, n) => (Number(n) % 12) + (오 === "오후" ? 12 : 0);
+    return { 구간: ms.map((m) => ({ 시작: 시(m[1], m[2]), 끝: 시(m[3], m[4]) })), 글: ms.map((m) => m[0]).join(", ") };
+  }
+  function 지금아님(h) {
+    const t = 정해진시간(h); if (!t) return false;
+    const 지금시 = new Date().getHours();
+    return !t.구간.some((g) => g.시작 <= g.끝 ? (지금시 >= g.시작 && 지금시 < g.끝) : (지금시 >= g.시작 || 지금시 < g.끝));
+  }
+  function 최근읽기() { const d = 읽기(최근키); return Array.isArray(d) ? d : []; }
+
+  // ===== 위치 =====
+  function 기억위치읽기() { const d = 읽기(위치키); return d && typeof d === "object" ? d : {}; }
+  function 기억위치쓰기(d) { return 쓰기(위치키, d); }
+  function 거리(a, b) {
+    const R = 6371000, r = (x) => x * Math.PI / 180;
+    const dLat = r(b.위도 - a.위도), dLng = r(b.경도 - a.경도);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(r(a.위도)) * Math.cos(r(b.위도)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+  function 매장위치들(매장) { return (매장.위치 || []).concat(기억위치읽기()[매장.이름] || []); }
+
+  // ===== 화면 1: 혜택 찾기 =====
+  function 안내띠그리기() {
+    let html = "";
+    if (사전있음 && !내정보.통신사 && !내정보.포인트.length)
+      html = `<div class="banner">내 통신사와 멤버십을 고르면 혜택이 자동으로 채워져요. 1분이면 돼요.<button data-go="wizard">✨ 3단계로 설정하기</button></div>`;
+    else if (내정보.통신사 && !내정보.등급)
+      html = `<div class="banner">통신사 등급을 골라야 통신사 혜택이 나와요.<button data-go="member">등급 고르기</button></div>`;
+    else if (내정보.등급추정)
+      html = `<div class="banner">통신사 등급을 몰라서 <b>가장 낮은 등급(${글(내정보.등급)})</b> 혜택만 보여드리고 있어요. ${글(멤버십찾기(내정보.통신사).등급확인)}에서 등급을 확인해 바꿔 주세요.<button data-go="member">등급 바꾸기</button></div>`;
+    else if (내정보.포인트.some((id) => 멤버십찾기(id).등급 && !내정보.포인트등급[id]))
+      html = `<div class="banner">등급을 고르지 않은 멤버십이 있어요.<button data-go="member">등급 고르기</button></div>`;
+    $("#setupBanner").innerHTML = html;
+  }
+
+  function 남은패널그리기() {
+    const 목록 = 남은목록();
+    let 생일들 = [];
+    if (내정보.생일월 === 이번달) 생일들 = 모든혜택().filter((h) => h.생일);
+    if (!목록.length && !생일들.length) { $("#leftPanel").innerHTML = ""; return; }
+    const 남음수 = 목록.filter((x) => !x.정보.다씀).length;
+    let html = "";
+    if (생일들.length) {
+      html += `<details class="panel" open><summary>🎂 이번 달 생일 혜택 ${생일들.length}개<span class="more">펼치기/접기</span></summary><div class="inner">` +
+        생일들.map((h) => `<div class="left-row"><div class="t"><b>${글(h.적용)}</b><span>${글(h.수단)} · ${글(h.내용)}</span></div></div>`).join("") + `</div></details>`;
+    }
+    if (목록.length) {
+      html += `<details class="panel"${남은날 <= 10 && 남음수 ? " open" : ""}><summary>📋 횟수 정해진 혜택 · 남은 것 ${남음수}개<span class="more">펼치기/접기</span></summary><div class="inner">` +
+        (남은날 <= 10 && 남음수 ? `<div class="month-end">⏰ 이번 달이 ${남은날}일 남았어요. 안 쓴 혜택은 다음 달로 넘어가지 않아요.</div>` : "") +
+        목록.map(({ h, 정보 }) => `<div class="left-row${정보.다씀 ? " done" : ""}"><div class="t"><b>${글(정보.이름)}</b><span>${글(횟수글(정보))}${정보.다씀 ? " · 다 썼어요" : ""}</span></div>` +
+          `${정보.다씀 ? "" : `<button class="mini use" data-use="${글(정보.키)}">썼어요</button>`}` +
+          `<button class="mini undo" data-unuse="${글(정보.키)}">↩</button></div>`).join("") +
+        `<p class="note" style="margin:8px 0 0">혜택을 쓴 뒤 "썼어요"를 누르면 남은 횟수를 세 드려요. 잘못 눌렀으면 ↩</p></div></details>`;
+    }
+    $("#leftPanel").innerHTML = html;
+  }
+
+  function 매장버튼그리기() {
+    const 검색어 = $("#search").value.trim().toLowerCase();
+    const 혜택들 = 모든혜택();
+    const 매장들 = 전체매장().map((m) => ({ m, n: 혜택찾기(m, 혜택들).length }));
+    let 후보 = 매장들, 숨김 = 0;
+    if (검색어) 후보 = 매장들.filter(({ m }) => m.이름.toLowerCase().includes(검색어) || m.분류.toLowerCase().includes(검색어));
+    else { const 있는것 = 매장들.filter((x) => x.n > 0 || x.m.이름 === 선택매장); if (있는것.length) { 숨김 = 매장들.length - 있는것.length; 후보 = 있는것; } }
+    const 최근 = 최근읽기().filter((n) => 매장들.some((x) => x.m.이름 === n));
+    $("#recent").innerHTML = !검색어 && 최근.length
+      ? `<span class="recent-label">최근</span>` + 최근.map((n) => `<button class="cat-chip" data-name="${글(n)}">${아이콘((매장들.find((x) => x.m.이름 === n) || { m: {} }).m.분류)} ${글(n)}</button>`).join("") : "";
+    const 분류들 = [...new Set(후보.map((x) => x.m.분류).filter(Boolean))];
+    if (선택분류 && !분류들.includes(선택분류)) 선택분류 = "";
+    $("#cats").innerHTML = 분류들.length > 1
+      ? `<button class="cat-chip${!선택분류 ? " on" : ""}" data-cat="">전체</button>` + 분류들.map((c) => `<button class="cat-chip${선택분류 === c ? " on" : ""}" data-cat="${글(c)}">${아이콘(c)} ${글(c)}</button>`).join("") : "";
+    const 보일 = 선택분류 ? 후보.filter((x) => x.m.분류 === 선택분류) : 후보;
+    $("#chips").innerHTML = 보일.length
+      ? 보일.map(({ m, n }) => `<button class="chip${m.이름 === 선택매장 ? " on" : ""}" data-name="${글(m.이름)}">${아이콘(m.분류)} ${글(m.이름)}<span class="n">${n}</span></button>`).join("")
+      : `<span class="small">찾는 매장이 없어요. [직접 관리]에서 매장을 추가할 수 있어요.</span>`;
+    $("#chipHint").textContent = 숨김 ? `혜택이 없는 매장 ${숨김}곳은 숨겼어요. 검색하면 보여요.` : "";
+  }
+
+  function 율칸(h, 작게) {
+    const cls = 작게 ? " small-rate" : "";
+    if (h.할인율 > 0) return `<div class="rate${cls}">${글(h.할인율)}%<small>${/적립/.test(h.종류 + (h.형태 || "")) ? "적립" : "할인"}</small></div>`;
+    return `<div class="rate none${cls}">${h.종류 === "쿠폰" ? "쿠폰" : "혜택"}</div>`;
+  }
+  function 태그(h) {
+    let s = "";
+    if (h.종류) s += `<span class="tag">${글(h.종류)}</span>`;
+    if (h.생일) s += `<span class="tag bday">🎂 ${내정보.생일월 === 이번달 ? "이번 달 생일" : "생일 달에만"}</span>`;
+    const 요일 = 정해진요일(h), 오늘요일아님 = !!요일 && !요일.includes(요일글자[new Date().getDay()]);
+    if (요일) s += `<span class="tag${오늘요일아님 ? " warn" : ""}">📅 ${요일.join("·")}요일만${오늘요일아님 ? "" : " (오늘)"}</span>`;
+    const 시간 = 정해진시간(h); if (시간) s += `<span class="tag${지금아님(h) ? " warn" : ""}">🕘 ${글(시간.글)}만</span>`;
+    if (h.카드) { s += `<span class="tag">카드고릴라 기준</span>`; if (h.실적필요) s += `<span class="tag warn">실적 확인</span>`; }
+    else if (!h.사전) s += `<span class="tag mine">내가 넣음</span>`;
+    else if (h.신뢰 === "확인 필요") s += `<span class="tag warn">[확인 필요]</span>`;
+    else if (h.신뢰 !== "공식") s += `<span class="tag">${글(h.신뢰)}</span>`;
+    return `<span class="tags">${s}</span>`;
+  }
+  function 방법뱃지(h) { const p = 방법표시[h.방법종류]; return p ? `<div class="how">${p[0]} ${글(h.방법설명 || p[1])}</div>` : ""; }
+  function 혜택줄(h, 기록들, 작게) {
+    const 표시 = h.카드 ? `data-card="${글(h.카드id)}|${h.카드번호}"` : h.사전 ? `data-dict="${h.사전번호}"` : `data-benefit="${글(h.id)}"`;
+    const 내기록 = 기록들[h.기록키] || [];
+    const 정보 = 횟수정보(h);
+    return `<div class="bf${정보 && 정보.다씀 ? " used" : ""}" ${표시}>${율칸(h, 작게)}<div class="body">` +
+      `<div class="desc">${글(h.내용 || h.수단)}${태그(h)}</div>` +
+      (h.조건 ? `<div class="cond">${글(h.조건)}</div>` : "") +
+      방법뱃지(h) +
+      (h.미리 ? `<div class="line pre">⏰ 미리 하기: ${글(h.미리)}</div>` : "") +
+      (h.제외 ? `<div class="line no">🚫 사용 못 하는 곳: ${글(h.제외)}</div>` : "") +
+      (h.중복 ? `<div class="line mix">🔁 ${글(h.중복)}</div>` : "") +
+      (h.팁 ? `<div class="line tip">💡 ${글(h.팁)}</div>` : "") +
+      (정보 ? `<div class="line cnt"><span>🔢 ${글(정보.이름 !== h.적용 + " · " + (h.내용 || h.수단) ? 정보.이름 + " " : "")}${글(횟수글(정보))}${정보.다씀 ? " · 다 썼어요" : ""}</span>${정보.다씀 ? "" : `<button class="mini use" data-use="${글(정보.키)}">썼어요</button>`}</div>` : "") +
+      (내기록.length ? `<div class="line rec">⚠️ 내 기록: ${내기록.map((r) => 글(r.메모) + " (" + 글(r.날짜) + ")").join(" / ")}</div>` : "") +
+      `</div></div>`;
+  }
+
+  // "이렇게 하세요" 카드
+  function 추천카드(매장, 목록) {
+    const 후보 = 목록.filter((h) => !생일대기(h) && !오늘아님(h) && !(횟수정보(h) || {}).다씀);
+    if (!후보.length) return "";
+    const 확실 = 후보.filter((h) => !h.실적필요);
+    const 최선 = 확실.find((h) => h.할인율 > 0) || 확실[0] || 후보.find((h) => h.할인율 > 0) || 후보[0];
+    const 단계 = [];
+    if (최선.미리) 단계.push({ cls: "pre", 글: "미리: " + 최선.미리 });
+    단계.push({ 글: `<b>${글(최선.수단)}</b> — ${글(최선.방법설명)}`, html: true });
+    const 메모 = [];
+    const 같이 = new Set([최선.멤버십 || "내것"]);
+    사전_연계.forEach((x) => {
+      if (x.적용 !== 매장.이름 || !x.조합.includes(최선.멤버십)) return;
+      if (x.등급 && !x.등급.includes(내등급(x.조합[0]))) return;
+      const 나머지 = x.조합.filter((id) => id !== 최선.멤버십);
+      if (x.종류 === "가능") {
+        나머지.forEach((id) => {
+          if (같이.has(id) || !사용중(id)) return;
+          const 짝 = 목록.find((h) => h.멤버십 === id);
+          if (짝) { 단계.push({ 글: `<b>${글(짝.수단)}</b> — ${글(짝.방법설명)} <span class="tag">같이 됨</span>`, html: true }); 같이.add(id); }
+        });
+        if (!나머지.length || 나머지.every((id) => !사용중(id))) 메모.push({ cls: "ok", 글: "✅ " + x.내용 });
+      } else if (나머지.some((id) => 사용중(id))) 메모.push({ cls: "caution", 글: "⚠️ " + x.내용 });
+    });
+    const 다른적립 = [...new Set(목록.filter((h) => h.사전 && !같이.has(h.멤버십) && h.멤버십 !== 최선.멤버십 && !생일대기(h) && !오늘아님(h) && !(횟수정보(h) || {}).다씀).map((h) => h.수단))];
+    if (다른적립.length && !메모.some((m) => m.cls === "caution")) {
+      // 공식 문구에 "다른 적립과 함께 안 됨"이 있을 때만 경고
+      if (/다른 적립|적립과 함께 안 됨/.test(최선.중복 || "")) 메모.push({ cls: "caution", 글: `⚠️ 이 혜택은 다른 적립과 같이 안 돼요. (${다른적립.join(", ")})` });
+      else 메모.push({ cls: "info", 글: `ℹ️ ${다른적립.join(", ")}도 같이 되는지는 공식 안내가 없어요. 계산할 때 "같이 되나요?" 물어보세요.` });
+    }
+    // 결제 카드: 가장 좋은 혜택이 카드가 아니면, 내 카드 중 이 매장 혜택이 가장 큰 카드로 결제
+    if (!최선.카드) {
+      const 카드후보 = 후보.filter((h) => h.카드 && !h.실적필요);
+      const 좋은카드 = 카드후보.find((h) => h.할인율 > 0) || 카드후보[0];
+      if (좋은카드) {
+        if (/카드/.test(최선.중복 || "") && /안 됨|불가/.test(최선.중복 || "")) 메모.push({ cls: "caution", 글: `⚠️ 이 혜택은 신용카드 할인과 같이 안 돼요. ${좋은카드.수단}(${좋은카드.내용})와 비교해서 더 큰 쪽을 고르세요.` });
+        else 단계.push({ 글: `결제는 <b>${글(좋은카드.수단)}</b>(으)로 — ${글(좋은카드.내용)} <span class="tag">카드 조건 확인</span>`, html: true });
+      }
+    }
+    if (최선.실적필요 || (후보.some((h) => h.카드 && h.실적필요) && !후보.some((h) => h.카드 && !h.실적필요)))
+      메모.push({ cls: "info", 글: "ℹ️ 카드 혜택은 전월실적을 채워야 받을 수 있어요. 채웠다면 [내 멤버십] > 내 카드에서 '이번 달 실적 채웠어요'를 눌러 주세요." });
+    단계.push({ cls: "done", 글: "결제하기" });
+    const 정보 = 횟수정보(최선);
+    let n = 0;
+    return `<div class="doit"><h4>✅ 이렇게 하세요</h4>` +
+      `<div class="best">가장 좋은 혜택: <b>${글(최선.내용 || 최선.수단)}</b></div>` +
+      단계.map((s) => `<div class="step ${s.cls || ""}"><span class="no">${s.cls === "pre" ? "⏰" : s.cls === "done" ? "✓" : ++n}</span><span>${s.html ? s.글 : 글(s.글)}</span></div>`).join("") +
+      메모.map((m) => `<div class="note2 ${m.cls}">${글(m.글)}</div>`).join("") +
+      (정보 ? `<button class="btn small primary" data-use="${글(정보.키)}">이 혜택 썼어요 (${글(횟수글(정보))})</button>` : "") +
+      `</div>`;
+  }
+
+  function 결과그리기() {
+    const 매장 = 전체매장().find((m) => m.이름 === 선택매장);
+    if (!매장) { 선택매장 = null; $("#result").innerHTML = `<div class="empty">위에서 매장을 골라주세요.</div>`; return; }
+    const 목록 = 혜택찾기(매장);
+    const 기록들 = 기록읽기();
+    const 최대 = 목록.reduce((a, h) => Math.max(a, h.할인율 || 0), 0);
+    const 기억수 = (기억위치읽기()[매장.이름] || []).length;
+    const 묶음 = new Map();
+    목록.forEach((h) => { const k = h.수단 || "기타"; if (!묶음.has(k)) 묶음.set(k, []); 묶음.get(k).push(h); });
+
+    let html = `<div class="store-card"><div class="s-top"><div class="s-icon">${아이콘(매장.분류)}</div>` +
+      `<div><h2>${글(매장.이름)}</h2><div class="s-cat">${글(매장.분류 || "분류 없음")}</div></div></div>` +
+      `<div class="s-sum"><span class="pill">혜택 ${목록.length}개</span><span class="pill">멤버십 ${묶음.size}개</span>` +
+      (최대 > 0 ? `<span class="pill">최대 ${글(최대)}%</span>` : "") + `</div></div>`;
+    if (!목록.length) html += `<div class="empty">지금 설정으로 받을 수 있는 혜택이 없어요.</div>`;
+    else html += 추천카드(매장, 목록);
+    묶음.forEach((hs, 이름) => {
+      html += `<div class="group"><div class="ghead"><span class="gname">${글(이름)}</span><span class="gsub">혜택 ${hs.length}개</span></div>`;
+      html += 혜택줄(hs[0], 기록들, false);
+      if (hs.length > 1) html += `<div class="extra-label">➕ 추가 혜택</div>` + hs.slice(1).map((h) => 혜택줄(h, 기록들, true)).join("");
+      html += `</div>`;
+    });
+    const 연계 = 연계찾기(매장);
+    if (연계.length) html += `<div class="combo"><h4>🤝 함께 받기</h4>` + 연계.map(({ x, 없음 }) => {
+      const cls = 없음.length ? "maybe" : x.종류 === "주의" ? "caution" : "ok";
+      const 앞 = 없음.length ? 없음.map((id) => 멤버십찾기(id).이름).join(", ") + "도 있다면: " : (x.종류 === "주의" ? "⚠️ " : "✅ ");
+      return `<div class="c ${cls}">${글(앞 + x.내용)}</div>`;
+    }).join("") + `</div>`;
+    if (목록.some((h) => h.사전)) html += `<div class="small">자동 혜택은 ${글(사전_기준일)} 기준이에요. 혜택을 누르면 출처를 보고, 안 되는 지점을 기록할 수 있어요.</div>`;
+    html += `<button class="btn" id="addHere">+ 이 매장에 내 혜택 추가 (카드 등)</button>`;
+    html += `<button class="btn primary" id="rememberBtn">📌 지금 위치를 '${글(매장.이름)}'(으)로 기억하기</button>`;
+    if (기억수) html += `<button class="btn" id="forgetBtn">기억한 위치 지우기 (${기억수}곳)</button>`;
+    $("#result").innerHTML = html;
+    $("#addHere").onclick = () => 혜택폼(null, { 적용: 매장.이름 });
+    $("#rememberBtn").onclick = 위치기억하기;
+    if (기억수) $("#forgetBtn").onclick = 위치지우기;
+  }
+  function 매장선택(이름, 스크롤) {
+    선택매장 = 이름;
+    쓰기(최근키, [이름].concat(최근읽기().filter((n) => n !== 이름)).slice(0, 6));
+    매장버튼그리기(); 결과그리기();
+    if (스크롤) { const 카드 = $("#result .store-card"); if (카드) window.scrollTo({ top: 카드.getBoundingClientRect().top + window.scrollY - $(".top-bar").offsetHeight - 8, behavior: "smooth" }); }
+  }
+
+  // ===== 화면 2: 내 멤버십 =====
+  function 등급칩(id, 지금값) {
+    const m = 멤버십찾기(id);
+    return `<div class="chips">` + (m.등급 || []).map((g) => `<button class="chip${지금값 === g ? " on" : ""}" data-grade="${글(g)}" data-for="${글(id)}">${글(g)}</button>`).join("") + `</div>`;
+  }
+  function 멤버십그리기() {
+    $("#carrierChips").innerHTML = `<button class="chip${!내정보.통신사 ? " on" : ""}" data-carrier="">없음·알뜰폰</button>` +
+      통신사목록.map((m) => `<button class="chip${내정보.통신사 === m.id ? " on" : ""}" data-carrier="${글(m.id)}">${글(m.이름)}</button>`).join("");
+    const 통신사 = 내정보.통신사 ? 멤버십찾기(내정보.통신사) : null;
+    let g = "";
+    if (통신사) {
+      g = `<p class="note" style="margin-top:12px">등급은 ${글(통신사.등급확인 || "통신사 앱")}에서 확인할 수 있어요.</p>` + 등급칩(통신사.id, 내정보.등급);
+      if (내정보.등급추정) g += `<p class="note">⚠️ 지금 등급은 "모르겠어요"로 고른 추정값이에요.</p>`;
+      if (내정보.등급 && !사전혜택목록().some((h) => h.멤버십 === 통신사.id)) g += `<p class="note">이 등급은 공식 안내상 매장 할인이 거의 없어요.</p>`;
+    } else g = `<p class="note">알뜰폰은 보통 통신사 멤버십 대상이 아니에요.</p>`;
+    $("#gradeBox").innerHTML = g;
+    const 분류들 = [...new Set(기타목록.map((m) => m.분류))];
+    const 제목 = { "포인트": "🪙 포인트", "브랜드 멤버십": "⭐ 브랜드 멤버십", "구독": "📦 구독 멤버십" };
+    $("#pointBox").innerHTML = 분류들.map((c) => {
+      const ms = 기타목록.filter((m) => m.분류 === c);
+      let s = `<div class="head"><h2>${글(제목[c] || c)}</h2></div><div class="chips">` +
+        ms.map((m) => `<button class="chip${내정보.포인트.includes(m.id) ? " on" : ""}" data-point="${글(m.id)}">${글(m.이름)}</button>`).join("") + `</div>`;
+      ms.filter((m) => m.등급 && 내정보.포인트.includes(m.id)).forEach((m) => {
+        s += `<div class="subgrade"><p class="note" style="margin:6px 0 0">${글(m.이름)} 등급 (${글(m.등급확인 || "앱에서 확인")})</p>${등급칩(m.id, 내정보.포인트등급[m.id])}</div>`;
+      });
+      return s;
+    }).join("");
+    const 달 = 기간키().월;
+    $("#cardBox").innerHTML = 내정보.카드.length
+      ? `<div class="rows">` + 내정보.카드.map((id) => {
+          const c = 카드찾기(id); if (!c) return "";
+          const 채움 = 내정보.실적[id] === 달;
+          return `<div class="row"><span class="main">💳 ${글(c.이름)}</span>` +
+            `<span class="sub">${글(c.카드사)} · ${글(c.종류)} · 매장 혜택 ${c.혜택.length}개 · ${c.전월실적 > 0 ? "전월실적 " + 만원(c.전월실적) : "실적 조건 없음"}</span>` +
+            `<span class="chips" style="margin:6px 0 0">` +
+            (c.전월실적 > 0 ? `<button class="chip sm${채움 ? " on" : ""}" data-perf="${글(id)}">${채움 ? "✓ 이번 달 실적 채웠어요" : "이번 달 실적 채웠어요?"}</button>` : "") +
+            `<button class="chip sm" data-cardview="${글(id)}">혜택 보기</button><button class="chip sm" data-cardrm="${글(id)}">빼기</button></span></div>`;
+        }).join("") + `</div>`
+      : `<div class="empty">아직 없어요. [+ 카드 추가]에서 카드사 → 카드를 고르면 혜택이 자동으로 붙어요.</div>`;
+    $("#bdayBox").innerHTML = Array.from({ length: 12 }, (_, i) => `<button class="${내정보.생일월 === i + 1 ? "on" : ""}" data-bday="${i + 1}">${i + 1}월</button>`).join("");
+    const 적용수 = 사전혜택목록().length;
+    $("#dictInfo").innerHTML = 사전있음
+      ? `<p><b>지금 설정으로 자동 적용되는 혜택: ${적용수}개</b></p><p>혜택 사전 기준일: ${글(사전_기준일)}</p>` +
+        `<p>표시 뜻 — 표시 없음: 공식 페이지에서 확인 / <span class="tag">언론 보도</span>: 뉴스 기사 기준 / <span class="tag warn">[확인 필요]</span>: 공식 안내가 분명하지 않음</p>` +
+        `<p>내 카드 혜택: ${카드혜택목록().length}개 (카드 사전 ${카드_목록.length}개 카드, 카드고릴라 ${글(카드_기준일)} 기준)</p>` +
+        `<p>매달 바뀌는 기간 한정 이벤트(T day, 달.달.혜택 등)는 넣지 않았어요.</p>`
+      : `<p>혜택 사전을 읽지 못해서 자동 혜택을 쓸 수 없어요.</p>`;
+  }
+
+  // ===== 화면 3: 직접 관리 =====
+  function 관리그리기() {
+    const 혜택들 = 데이터.혜택목록.slice().sort((a, b) => a.적용.localeCompare(b.적용, "ko") || a.수단.localeCompare(b.수단, "ko"));
+    $("#benefitList").innerHTML = 혜택들.length
+      ? `<div class="rows">` + 혜택들.map((h) => `<button class="row" data-benefit="${글(h.id)}"><span class="main">${글(h.적용 || "(어디서? 비어 있음)")} · ${글(h.수단)}</span>` +
+          `<span class="sub">${글(h.내용)}${h.조건 ? ` · ${글(h.조건)}` : ""}</span></button>`).join("") + `</div>`
+      : `<div class="empty">아직 없어요. [+ 추가]를 눌러 카드 혜택 등을 넣어 보세요.</div>`;
+    const 혜택전체 = 모든혜택();
+    $("#storeList").innerHTML = 데이터.매장목록.length
+      ? `<div class="rows">` + 데이터.매장목록.map((m, i) => `<button class="row" data-store="${i}"><span class="main">${아이콘(m.분류)} ${글(m.이름)}</span>` +
+          `<span class="sub">${글(m.분류 || "분류 없음")} · 받을 수 있는 혜택 ${혜택찾기(m, 혜택전체).length}개</span></button>`).join("") + `</div>`
+      : `<div class="empty">내가 넣은 매장이 없어요.</div>`;
+    const 기록들 = 기록읽기(), 키들 = Object.keys(기록들).filter((k) => (기록들[k] || []).length);
+    $("#recList").innerHTML = 키들.length
+      ? `<div class="rows">` + 키들.map((k) => {
+          let 제목 = k;
+          if (k.startsWith("d:")) { const [mid, 적용, 내용] = k.slice(2).split("|"); const m = 멤버십찾기(mid); 제목 = `${적용} · ${m ? m.이름 : mid} · ${내용}`; }
+          else if (k.startsWith("c:")) { const [cid, 적용, 내용] = k.slice(2).split("|"); const c = 카드찾기(cid); 제목 = `${적용} · ${c ? c.이름 : cid} · ${내용}`; }
+          else { const h = 데이터.혜택목록.find((x) => "u:" + x.id === k); 제목 = h ? `${h.적용} · ${h.수단} · ${h.내용}` : "(지운 혜택)"; }
+          return `<div class="row"><span class="main">${글(제목)}</span>` + 기록들[k].map((r) => `<span class="sub">⚠️ ${글(r.메모)} (${글(r.날짜)})</span>`).join("") + `</div>`;
+        }).join("") + `</div>`
+      : `<div class="empty">아직 기록이 없어요. 혜택을 눌러 "여기서 안 됐어요"를 남길 수 있어요.</div>`;
+  }
+
+  function 새로그리기() {
+    안내띠그리기(); 남은패널그리기(); 매장버튼그리기(); 결과그리기();
+    if (!$("#view-member").hidden) 멤버십그리기();
+    if (!$("#view-manage").hidden) 관리그리기();
+  }
+  function 화면전환(이름) {
+    document.querySelectorAll(".tabs button").forEach((b) => b.classList.toggle("on", b.dataset.view === 이름));
+    $("#view-find").hidden = 이름 !== "find"; $("#view-member").hidden = 이름 !== "member"; $("#view-manage").hidden = 이름 !== "manage";
+    새로그리기(); window.scrollTo(0, 0);
+  }
+
+  // ===== 아래에서 올라오는 창 =====
+  function 시트열기(html) { $("#sheetBody").innerHTML = html; $("#sheet").hidden = false; document.body.classList.add("noscroll"); $("#sheetBody").scrollTop = 0; }
+  function 시트닫기() { $("#sheet").hidden = true; $("#sheetBody").innerHTML = ""; document.body.classList.remove("noscroll"); }
+  function 폼오류(메시지) { const f = $("#fmsg"); if (f) f.textContent = 메시지; }
+
+  // ----- 처음 설정 (3단계) -----
+  function 처음설정(단계) {
+    단계 = 단계 || 1;
+    const 끝 = () => { 내정보.설정완료 = true; 내정보저장(); 시트닫기(); 화면전환("find"); 상태(`✅ 설정 끝! 자동 혜택 ${사전혜택목록().length}개를 찾았어요. 결제할 매장을 골라 보세요.`); };
+    if (단계 === 1) {
+      시트열기(`<div class="wiz-step">1 / 3</div><p class="wiz-q">어느 통신사 쓰세요?</p><p class="note">통신사 멤버십 할인이 가장 커요.</p>
+        <div class="tiles">${통신사목록.map((m) => `<button class="tile${내정보.통신사 === m.id ? " on" : ""}" data-w-carrier="${m.id}">${글(m.이름.replace(" 멤버십", "").replace(" T멤버십", ""))}<small>${글(m.이름)}</small></button>`).join("")}
+        <button class="tile${!내정보.통신사 && 내정보.설정완료 ? " on" : ""}" data-w-carrier="">알뜰폰·없음<small>통신사 혜택 없이 시작</small></button></div>
+        <button class="btn" id="w닫기">나중에 할게요</button>`);
+      $("#w닫기").onclick = 시트닫기;
+      $("#sheetBody").querySelectorAll("[data-w-carrier]").forEach((b) => b.onclick = () => {
+        const id = b.dataset.wCarrier || null;
+        if (id !== 내정보.통신사) { 내정보.통신사 = id; 내정보.등급 = null; 내정보.등급추정 = false; }
+        내정보저장(); 처음설정(id ? 2 : 3);
+      });
+    } else if (단계 === 2) {
+      const m = 멤버십찾기(내정보.통신사);
+      시트열기(`<div class="wiz-step">2 / 3</div><p class="wiz-q">멤버십 등급은요?</p><p class="note">${글(m.등급확인)}에 나와 있어요. 등급이 높을수록 할인이 커요.</p>
+        <div class="tiles">${m.등급.map((g) => `<button class="tile${내정보.등급 === g && !내정보.등급추정 ? " on" : ""}" data-w-grade="${글(g)}">${글(g)}</button>`).join("")}
+        <button class="tile wide${내정보.등급추정 ? " on" : ""}" data-w-grade="?">모르겠어요<small>가장 낮은 등급 혜택으로 시작하고, 나중에 바꿀 수 있어요</small></button></div>
+        <div class="wiz-nav"><button class="btn" id="w뒤로">← 뒤로</button></div>`);
+      $("#w뒤로").onclick = () => 처음설정(1);
+      $("#sheetBody").querySelectorAll("[data-w-grade]").forEach((b) => b.onclick = () => {
+        if (b.dataset.wGrade === "?") { 내정보.등급 = 가장낮은등급(m.id); 내정보.등급추정 = true; } else { 내정보.등급 = b.dataset.wGrade; 내정보.등급추정 = false; }
+        내정보저장(); 처음설정(3);
+      });
+    } else if (단계 === 3) {
+      const 그리기 = () => {
+        시트열기(`<div class="wiz-step">3 / 3</div><p class="wiz-q">가입한 것 모두 눌러 주세요</p><p class="note">잘 모르겠으면 그냥 넘어가도 돼요. 나중에 [내 멤버십]에서 바꿀 수 있어요.</p>
+          <div class="tiles">${기타목록.map((m) => `<button class="tile${내정보.포인트.includes(m.id) ? " on" : ""}" data-w-point="${m.id}">${글(m.이름)}<small>${글(멤버십대표매장(m.id))}</small></button>`).join("")}</div>
+          ${기타목록.filter((m) => m.등급 && 내정보.포인트.includes(m.id)).map((m) => `<p class="note">${글(m.이름)} 등급은요? (${글(m.등급확인)})</p>
+            <div class="chips">${m.등급.map((g) => `<button class="chip${내정보.포인트등급[m.id] === g ? " on" : ""}" data-w-pgrade="${글(g)}" data-for="${m.id}">${글(g)}</button>`).join("")}</div>`).join("")}
+          <p class="note" style="margin-top:14px"><b>🎂 생일이 몇 월이에요?</b> (선택) 생일 달에 생일 혜택을 알려드려요.</p>
+          <div class="months">${Array.from({ length: 12 }, (_, i) => `<button class="${내정보.생일월 === i + 1 ? "on" : ""}" data-w-bday="${i + 1}">${i + 1}월</button>`).join("")}</div>
+          ${카드_목록.length ? `<button class="btn" id="w카드">💳 쓰는 카드도 추가하기 (선택)${내정보.카드.length ? ` · ${내정보.카드.length}개 추가됨` : ""}</button>` : ""}
+          <div class="wiz-nav"><button class="btn" id="w뒤로">← 뒤로</button><button class="btn primary" id="w끝">완료</button></div>`);
+        if ($("#w카드")) $("#w카드").onclick = () => 카드고르기("", () => 처음설정(3));
+        $("#w뒤로").onclick = () => 처음설정(내정보.통신사 ? 2 : 1);
+        $("#w끝").onclick = 끝;
+        $("#sheetBody").querySelectorAll("[data-w-point]").forEach((b) => b.onclick = () => {
+          const id = b.dataset.wPoint;
+          if (내정보.포인트.includes(id)) { 내정보.포인트 = 내정보.포인트.filter((x) => x !== id); delete 내정보.포인트등급[id]; } else 내정보.포인트.push(id);
+          내정보저장(); const 위치 = $("#sheetBody").scrollTop; 그리기(); $("#sheetBody").scrollTop = 위치;
+        });
+        $("#sheetBody").querySelectorAll("[data-w-pgrade]").forEach((b) => b.onclick = () => { 내정보.포인트등급[b.dataset.for] = b.dataset.wPgrade; 내정보저장(); const 위치 = $("#sheetBody").scrollTop; 그리기(); $("#sheetBody").scrollTop = 위치; });
+        $("#sheetBody").querySelectorAll("[data-w-bday]").forEach((b) => b.onclick = () => { const v = Number(b.dataset.wBday); 내정보.생일월 = 내정보.생일월 === v ? null : v; 내정보저장(); const 위치 = $("#sheetBody").scrollTop; 그리기(); $("#sheetBody").scrollTop = 위치; });
+      };
+      그리기();
+    }
+  }
+
+  // ----- 설치 안내 -----
+  let 설치이벤트 = null;
+  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); 설치이벤트 = e; });
+  function 설치안내() {
+    const 아이폰 = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const 설치됨 = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+    const 파일 = location.protocol === "file:";
+    시트열기(`<h3>📲 홈 화면에 앱으로 설치하기</h3>
+      ${설치됨 ? `<p class="fsel">이미 앱으로 설치돼 있어요 👍</p>` : ""}
+      ${파일 ? `<p class="error">지금은 PC의 파일로 열려 있어요. 인터넷 주소(https)에 올린 다음, 폰에서 그 주소를 열어 설치할 수 있어요.</p>` : ""}
+      <div class="box" style="margin-top:8px"><p><b>🍎 아이폰 (사파리)</b></p><ol class="steps-ol">
+        <li>카카오톡 등에서 링크를 열었다면 먼저 <b>사파리로 열기</b></li>
+        <li>화면 아래 <b>공유 버튼(□↑)</b> 누르기 <span class="small">(안 보이면 주소창 옆 ··· 안에 있어요)</span></li>
+        <li><b>홈 화면에 추가</b> → 오른쪽 위 <b>추가</b></li></ol>
+        <p class="note">그다음부터 홈 화면의 🎁 아이콘으로 바로 열려요.</p></div>
+      <div class="box"><p><b>🤖 안드로이드 (크롬)</b></p><ol class="steps-ol">
+        <li>크롬 오른쪽 위 <b>⋮</b> 메뉴</li><li><b>앱 설치</b> 또는 <b>홈 화면에 추가</b></li></ol>
+        ${설치이벤트 ? `<button class="btn primary" id="i설치">지금 설치하기</button>` : ""}</div>
+      <p class="note" style="margin-top:12px">${아이폰 ? "지금 아이폰으로 보고 계세요." : ""} 설치해도 내 설정은 이 폰에만 저장돼요.</p>
+      <button class="btn" id="i닫기">닫기</button>`);
+    $("#i닫기").onclick = 시트닫기;
+    if (설치이벤트) $("#i설치").onclick = () => { 설치이벤트.prompt(); 설치이벤트 = null; 시트닫기(); };
+  }
+
+  // ----- 카드 고르기 / 미리보기 / 상세 -----
+  function 카드고르기(카드사, 돌아가기) {
+    let 사 = 카드사 || "", 검색 = "";
+    // 검색칸에 글자를 칠 때는 아래 결과만 바꿈 (칸 전체를 다시 그리면 한글이 ㅎㅕㄴ처럼 쪼개짐)
+    const 결과HTML = () => {
+      const 목록 = 카드_목록.filter((c) => (!사 || c.카드사 === 사) && (!검색.trim() || 이름맞음(c.이름, 검색)));
+      return (사 || 검색.trim()) && 목록.length ? 목록.map((c) =>
+        `<button class="row" data-cpick="${글(c.id)}"><span class="main">${내정보.카드.includes(c.id) ? "✓ " : ""}${글(c.이름)}</span>` +
+        `<span class="sub">${글(c.카드사)} · ${글(c.종류)} · 매장 혜택 ${c.혜택.length}개${c.요약 ? " · " + 글(c.요약.slice(0, 50)) : ""}</span></button>`).join("")
+        : `<div class="empty">${사 || 검색.trim() ? "목록에 없어요. 아래 [🌐 카드고릴라에서 찾기]를 눌러 보세요." : "카드사를 누르거나 카드 이름을 검색하세요."}</div>`;
+    };
+    const 결과연결 = () => $("#c결과").querySelectorAll("[data-cpick]").forEach((b) => b.onclick = () => 카드미리보기(b.dataset.cpick, () => 카드고르기(사, 돌아가기)));
+    const 그리기 = () => {
+      const 위치 = $("#sheet").hidden ? 0 : $("#sheetBody").scrollTop;
+      시트열기(`<h3>💳 카드 추가</h3>
+        <p class="note">카드사를 누르고 내 카드를 고르면, 그 카드의 혜택이 매장마다 자동으로 붙어요.</p>
+        <div class="chips">${카드사들.map((c) => `<button class="chip sm${사 === c ? " on" : ""}" data-sa="${글(c)}">${글(c)}</button>`).join("")}</div>
+        <input id="c검색" placeholder="카드 이름 검색 (예: 현대카드M, 노리)" value="${글(검색)}" autocomplete="off">
+        <div class="rows" id="c결과" style="margin-top:10px">${결과HTML()}</div>
+        <p class="note" style="margin-top:10px">카드사별 인기 카드 ${카드_목록.length}개가 들어 있어요 (${글(카드_기준일)}, 카드고릴라 기준).</p>
+        <button class="btn primary" id="c온라인">🌐 목록에 없어요 → 카드고릴라에서 찾기</button>
+        <button class="btn" id="c직접">✏️ 혜택을 직접 입력</button>
+        <button class="btn" id="c닫기">${돌아가기 ? "← 뒤로" : "닫기"}</button>`);
+      $("#sheetBody").scrollTop = 위치;
+      $("#c검색").oninput = (e) => { 검색 = e.target.value; $("#c결과").innerHTML = 결과HTML(); 결과연결(); };
+      $("#sheetBody").querySelectorAll("[data-sa]").forEach((b) => b.onclick = () => { 사 = 사 === b.dataset.sa ? "" : b.dataset.sa; 그리기(); });
+      결과연결();
+      $("#c온라인").onclick = () => 온라인카드찾기(검색.trim(), () => 카드고르기(사, 돌아가기));
+      $("#c직접").onclick = () => 혜택폼(null, { 수단종류: "카드", 카드사: 사, 직접: true });
+      $("#c닫기").onclick = () => (돌아가기 ? 돌아가기() : 시트닫기());
+    };
+    그리기();
+  }
+
+  // ----- 카드고릴라에서 카드 찾기 (사전에 없는 카드) -----
+  // 카드고릴라 = 카드 비교 사이트. 찾은 카드의 혜택 문구를 cards.js 만들 때와 같은 규칙으로 바꿔 넣음.
+  const 카드API = "https://api.card-gorilla.com:8080/v1/cards";
+  const 카드사번호 = { 2: "신한", 1: "삼성", 7: "현대", 3: "KB국민", 4: "롯데", 8: "하나", 5: "우리", 9: "NH농협", 32: "BC", 10: "IBK기업", 14: "카카오뱅크", 47: "토스뱅크", 13: "케이뱅크" };
+  const 변환규칙 = {
+    빼기제목: /유의사항|선택형|무이자|수수료|해외|라운지|프리미엄|브랜드 서비스|바우처|연회비|체크카드 이용|국민행복|국가바우처|K-패스|하이패스|금융|은행|보험|학습지|학원|어린이집|병원|기부|통신|KT|대중교통|^교통|택시|주유|공과금|항공|대한항공|자동차|고속버스|기차|공항|우대|급여|혜택 프로모션|혜택팩|메탈|플레이트|웰컴|포인트 리필|기타|비즈니스|삼성페이|게임|구독|디지털|공연|전통시장|패션/i,
+    빼기내용: /마일리지|^해외|통신요금|교통|택시|주유|공항|라운지|무이자|수수료|넷플릭스|유튜브|구독|보험|관리비|공과금|학습지|병원|약국|세탁|주차|하이패스|철도|고속버스|플레이트|바우처|연회비|프로모션|정기결제|시즌 \d|^[①②③]/i,
+    브랜드: [[/스타벅스/i, "스타벅스"], [/메가MGC|메가커피/i, "메가MGC커피"], [/투썸/i, "투썸플레이스"], [/이디야/i, "이디야"], [/컴포즈/i, "컴포즈커피"], [/폴 ?바셋/i, "폴 바셋"], [/빽다방/i, "빽다방"],
+      [/CGV/i, "CGV"], [/롯데시네마/i, "롯데시네마"], [/메가박스/i, "메가박스"],
+      [/올리브영/i, "올리브영"], [/빕스|VIPS/i, "VIPS"], [/뚜레쥬르|뚜레쥬스/i, "뚜레쥬르"], [/파리바게(뜨|트)/i, "파리바게뜨"], [/배스킨/i, "배스킨라빈스"], [/던킨/i, "던킨"],
+      [/이마트24/i, "이마트24"], [/이마트(?!24)/i, "이마트"], [/홈플러스/i, "홈플러스"], [/롯데마트/i, "롯데마트"], [/GS25/i, "GS25"], [/(^|[^A-Za-z])CU([^A-Za-z]|$)/i, "CU"], [/세븐일레븐/i, "세븐일레븐"],
+      [/맥도날드/i, "맥도날드"], [/버거킹/i, "버거킹"], [/롯데리아/i, "롯데리아"],
+      [/에버랜드/i, "에버랜드"], [/롯데월드/i, "롯데월드 어드벤처"],
+      [/배달의 ?민족|배민/i, "배달의민족"], [/쿠팡이츠/i, "쿠팡이츠"], [/요기요/i, "요기요"], [/쿠팡(?!이츠|캐시| 외)/i, "쿠팡"], [/11번가/i, "11번가"], [/네이버 ?(스마트스토어|쇼핑|플러스)/i, "네이버쇼핑"]],
+    매장분류: { 스타벅스: "카페", 메가MGC커피: "카페", 투썸플레이스: "카페", 이디야: "카페", 컴포즈커피: "카페", "폴 바셋": "카페", 빽다방: "카페",
+      CGV: "영화관", 롯데시네마: "영화관", 메가박스: "영화관", 올리브영: "뷰티", VIPS: "외식", 뚜레쥬르: "베이커리", 파리바게뜨: "베이커리", 배스킨라빈스: "디저트", 던킨: "디저트",
+      이마트24: "편의점", 이마트: "마트", 홈플러스: "마트", 롯데마트: "마트", GS25: "편의점", CU: "편의점", 세븐일레븐: "편의점", 맥도날드: "패스트푸드", 버거킹: "패스트푸드", 롯데리아: "패스트푸드",
+      에버랜드: "놀이·관광", "롯데월드 어드벤처": "놀이·관광", 배달의민족: "배달", 쿠팡이츠: "배달", 요기요: "배달", 쿠팡: "온라인", "11번가": "온라인", 네이버쇼핑: "온라인" },
+    업종: [[/커피전문점|커피|카페/i, "카페 전체"], [/편의점/i, "편의점 전체"], [/빵집|베이커리|제과/i, "베이커리 전체"], [/패스트푸드/i, "패스트푸드 전체"],
+      [/음식점|외식|식음료|패밀리레스토랑|음식업종/i, "외식 전체"], [/영화/i, "영화관 전체"], [/대형마트|3대 ?마트|할인점|장보기|슈퍼마켓/i, "마트 전체"],
+      [/놀이공원|테마파크/i, "놀이·관광 전체"], [/배달앱|배달/i, "배달 전체"], [/온라인 ?쇼핑|쇼핑몰|온라인/i, "온라인 전체"], [/드럭스토어/i, "뷰티 전체"]],
+    전체: /전가맹점|국내외 ?가맹점|국내・외 가맹점|국내 ?가맹점|모든 가맹점|일반 가맹점|어디서나|전 가맹점/i,
+  };
+  function 글자정리(html) {
+    if (!html) return "";
+    const t = String(html).replace(/<br\s*\/?>/gi, " ").replace(/<\/p>/gi, " ").replace(/<li[^>]*>/gi, " · ");
+    const 문서 = new DOMParser().parseFromString(t, "text/html"); // 글자만 꺼냄 (스크립트는 실행되지 않음)
+    return String(문서.body.textContent || "").replace(/Powered by Froala Editor/g, "").replace(/\s+/g, " ").trim();
+  }
+  function 카드변환(j) {
+    const 혜택 = [], 기타 = [], 규 = 변환규칙;
+    (Array.isArray(j.key_benefit) ? j.key_benefit : []).forEach((k) => {
+      const 제목 = String(k.title || ""), 내용 = String(k.comment || "").replace(/\s+/g, " ").trim();
+      if (!내용 || 규.빼기제목.test(제목) || 규.빼기내용.test(내용)) return;
+      // 금액(원)이나 %가 없는 막연한 문구는 매장에 붙이지 않음
+      if (!/\d+(\.\d+)?\s*%|[\d,]+\s*(천|만)?\s*원/.test(내용)) { 기타.push(내용); return; }
+      let 대상 = 규.브랜드.filter(([p]) => p.test(내용)).map(([, n]) => n);
+      const 업종대상 = 규.업종.filter(([p]) => p.test(제목 + " " + 내용)).map(([, n]) => n);
+      const 브랜드분류 = 대상.map((n) => 규.매장분류[n]);
+      대상 = 대상.concat(업종대상.filter((u) => !브랜드분류.includes(u.replace(/ 전체$/, ""))));
+      if (/쿠팡 외/.test(내용)) 대상 = 대상.filter((n) => n !== "쿠팡");
+      if (!대상.length && (규.전체.test(제목 + " " + 내용) || /쿠팡 외/.test(내용))) 대상 = ["모든 매장"];
+      대상 = [...new Set(대상)];
+      if (!대상.length) { 기타.push(내용); return; }
+      const 율칸 = 내용.match(/(\d+(?:\.\d+)?)\s*%?\s*[~∼]\s*(\d+(?:\.\d+)?)\s*%/) || 내용.match(/(\d+(?:\.\d+)?)\s*%/);
+      const 율 = 율칸 ? Number(율칸[1]) : 0;
+      const 형태 = /적립|캐시백|캐시벡|포인트|머니/.test(내용) ? "적립" : "할인";
+      let 상세 = 글자정리(k.info);
+      const u = 상세.indexOf("유의사항"), 핵심 = u > 20 ? 상세.slice(0, u) : 상세; // '유의사항' 앞부분만 이 혜택의 조건
+      let 조건들 = (핵심.match(/(오전|오후)\s?\d+시\s?~\s?(오전|오후)\s?\d+시|(일|월|연)\s?\d+회|월\s?(통합\s?)?(할인|적립)?\s?한도\s?:?\s?[\d,만천]+\s?(원|포인트|P)|월\s?최대\s?[\d,만천]+\s?(원|포인트|P)|회당\s?[\d,만천]+\s?(원|포인트|P)|1회\s?최대\s?[\d,만천]+\s?(원|포인트|P)|[\d,만천]+원\s?이상\s?결제/gi) || []).map((x) => x.trim());
+      const 실적칸 = 내용.match(/전월\s?(실적|이용\s?금액|이용\s?실적)\s?([\d,만]+원?)\s?이상/);
+      if (실적칸) 조건들.unshift("전월실적 " + 실적칸[2] + " 이상");
+      조건들 = [...new Set(조건들)].slice(0, 4);
+      const 줄들 = 핵심.replace(/다\.\s/g, "다.\u0001").split(/\s-\s|·|\u0001/).map((x) => x.replace(/^[\s\-·]+|[\s\-·]+$/g, ""))
+        .filter((x) => /제외|불가|적용되지 않/.test(x) && !/구분|확인 ?사항/.test(x));
+      let 제외 = 줄들.filter((x) => x.length <= 110).slice(0, 2).join(" / ");
+      if (!제외) { const 칸 = 핵심.match(/[^\-·:]{0,40}(제외|불가)[^\-·]{0,50}/); if (칸 && !/구분할인율/.test(핵심)) 제외 = 칸[0].trim() + "…"; }
+      const 월칸 = 조건들.join(" ").match(/월\s?(\d+)회/);
+      if (상세.length > 600) 상세 = 상세.slice(0, 600) + "…";
+      대상.forEach((t) => 혜택.push({ 적용: t, 내용, 할인율: 율, 형태, 조건: 조건들.join(", "), 제외, 상세, 횟수: 월칸 ? { 월: Number(월칸[1]) } : null }));
+    });
+    const 회사 = j.corp || {};
+    return { id: "cg" + Number(j.idx), 카드사: 카드사번호[회사.idx] || String(회사.name || "기타"), 이름: String(j.name || "이름 없는 카드"),
+      종류: j.cate === "CHK" ? "체크" : "신용", 전월실적: Number(j.pre_month_money) || 0, 연회비: 글자정리(j.annual_fee_basic),
+      요약: (Array.isArray(j.top_benefit) ? j.top_benefit : []).map((b) => (b.tags || []).join(" ")).join(" · "),
+      출처: "https://www.card-gorilla.com/card/detail/" + Number(j.idx), 혜택, 기타: [...new Set(기타)].slice(0, 6), 검색카드: true, 가져온날: 오늘() };
+  }
+  function 온라인카드찾기(검색어, 돌아가기) {
+    let 마지막 = "";
+    시트열기(`<h3>🌐 카드고릴라에서 찾기</h3>
+      <p class="note">카드 비교 사이트(카드고릴라)에서 찾아서, 혜택·할인율·조건을 자동으로 넣어요. 인터넷이 연결돼 있어야 해요.</p>
+      <input id="o검색" placeholder="카드 이름 (예: 현대카드M)" value="${글(검색어)}" autocomplete="off" enterkeyhint="search">
+      <button class="btn primary small" id="o찾기">찾기</button>
+      <div class="rows" id="o결과" style="margin-top:10px"><div class="empty">카드 이름을 넣고 [찾기]를 누르세요.</div></div>
+      <button class="btn" id="o뒤로">← 뒤로</button>`);
+    const 결과칸 = (html) => { $("#o결과").innerHTML = html; };
+    const 찾기 = async () => {
+      const q = $("#o검색").value.trim(); 마지막 = q;
+      if (!q) return 결과칸(`<div class="empty">카드 이름을 넣어 주세요.</div>`);
+      결과칸(`<div class="empty">찾는 중…</div>`);
+      try {
+        const r = await fetch(`${카드API}/search?p=1&perPage=40&keyword=${encodeURIComponent(q)}`);
+        if (!r.ok) throw new Error(r.status);
+        const d = await r.json();
+        if (q !== 마지막 || !$("#o결과")) return; // 그 사이 다른 검색을 했거나 창을 닫음
+        // 지금 발급 중인 카드를 먼저, 발급 중단(단종) 카드는 뒤에
+        const 목록 = (Array.isArray(d.data) ? d.data : []).filter((c) => Number(c.idx) > 0).sort((a, b) => (a.is_discon ? 1 : 0) - (b.is_discon ? 1 : 0));
+        결과칸(목록.length ? 목록.map((c) => `<button class="row" data-oidx="${Number(c.idx)}"><span class="main">${내정보.카드.includes("cg" + Number(c.idx)) ? "✓ " : ""}${글(c.name)}</span>` +
+          `<span class="sub">${글(c.corp_txt || (c.corp && c.corp.name) || "")} · ${글(c.cate_txt || "")}${c.is_discon ? " · 발급 중단된 카드" : ""}</span></button>`).join("")
+          : `<div class="empty">찾는 카드가 없어요. 이름을 짧게 넣어 보세요 (예: '현대카드M' → 'M').</div>`);
+        $("#o결과").querySelectorAll("[data-oidx]").forEach((b) => b.onclick = () => 온라인카드가져오기(b.dataset.oidx, () => 온라인카드찾기(q, 돌아가기)));
+      } catch (e) {
+        if ($("#o결과")) 결과칸(`<div class="error">카드고릴라에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 [찾기]를 눌러 주세요.</div>`);
+      }
+    };
+    $("#o찾기").onclick = 찾기;
+    $("#o검색").onkeydown = (e) => { if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); 찾기(); } };
+    $("#o뒤로").onclick = () => (돌아가기 ? 돌아가기() : 시트닫기());
+    if (검색어) 찾기();
+  }
+  async function 온라인카드가져오기(idx, 돌아가기) {
+    const id = "cg" + Number(idx);
+    if (카드찾기(id)) return 카드미리보기(id, 돌아가기);
+    시트열기(`<h3>🌐 카드 정보 가져오는 중…</h3><div class="empty">잠깐만 기다려 주세요.</div>`);
+    try {
+      const r = await fetch(`${카드API}/${Number(idx)}`);
+      if (!r.ok) throw new Error(r.status);
+      const c = 카드변환(await r.json());
+      if (!카드찾기(id)) 카드_목록.push(c);
+      카드미리보기(id, 돌아가기);
+    } catch (e) {
+      시트열기(`<h3>🌐 카드 정보를 못 가져왔어요</h3>
+        <div class="error">카드고릴라에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 해 주세요.</div>
+        <button class="btn" id="o뒤로">← 뒤로</button>`);
+      $("#o뒤로").onclick = () => (돌아가기 ? 돌아가기() : 시트닫기());
+    }
+  }
+  function 카드미리보기(id, 돌아가기) {
+    const c = 카드찾기(id); if (!c) return;
+    const 있음 = 내정보.카드.includes(id);
+    시트열기(`<h3>💳 ${글(c.이름)}</h3>
+      <p class="note">${글(c.카드사)} · ${글(c.종류)} · ${c.전월실적 > 0 ? "전월실적 " + 만원(c.전월실적) + " 이상" : "전월실적 조건 없음"}${c.연회비 ? " · 연회비 " + 글(c.연회비) : ""}</p>
+      <div class="box" style="margin-top:0"><p><b>매장에 자동으로 붙는 혜택 ${c.혜택.length}개</b></p>
+        ${c.혜택.length ? c.혜택.map((h) => `<p>• <b>${글(h.적용)}</b> — ${글(h.내용)}</p>`).join("") : `<p class="note">우리 앱의 매장과 연결되는 혜택이 없어요.</p>`}</div>
+      ${c.기타.length ? `<div class="box"><p><b>그 밖의 혜택</b> <span class="small">(매장이 정해지지 않아 자동으로 붙이지 않아요)</span></p>${c.기타.map((t) => `<p>• ${글(t)}</p>`).join("")}</div>` : ""}
+      <p class="note" style="margin-top:10px">카드고릴라(카드 비교 사이트) ${글(카드기준일(c))} 기준이에요.${c.검색카드 ? " 인터넷에서 찾아 자동으로 넣은 카드예요." : ""} 정확한 조건은 카드사 앱에서 확인하세요. <a href="${글(c.출처)}" target="_blank" rel="noopener noreferrer">원문 보기</a></p>
+      <button class="btn primary" id="p추가">${있음 ? "✓ 내 카드에 있어요 (빼기)" : "내 카드에 추가"}</button>
+      <button class="btn" id="p뒤로">${돌아가기 ? "← 목록으로" : "닫기"}</button>`);
+    $("#p추가").onclick = () => {
+      if (있음) 내정보.카드 = 내정보.카드.filter((x) => x !== id); else 내정보.카드 = 내정보.카드.concat(id);
+      내정보저장(); if (c.검색카드) 검색카드저장(); 새로그리기();
+      상태(있음 ? `${c.이름}을(를) 내 카드에서 뺐어요.` : `✅ ${c.이름}을(를) 추가했어요. 매장 혜택 ${c.혜택.length}개가 자동으로 붙었어요.`);
+      if (돌아가기) 돌아가기(); else 시트닫기();
+    };
+    $("#p뒤로").onclick = () => (돌아가기 ? 돌아가기() : 시트닫기());
+  }
+  function 카드혜택상세(id, 번호) {
+    const h = 카드혜택목록().find((x) => x.카드id === id && x.카드번호 === 번호);
+    if (!h) return;
+    const 그리기 = () => {
+      const 내기록 = 기록읽기()[h.기록키] || [], 정보 = 횟수정보(h), c = 카드찾기(id), 채움 = 내정보.실적[id] === 기간키().월;
+      시트열기(`<h3>💳 ${글(h.적용)} · ${글(h.수단)}</h3>
+        <div class="dl">
+          <div><b>혜택</b>${글(h.내용)}</div>
+          <div><b>💳 결제할 때</b>${글(h.방법설명)}</div>
+          ${h.조건 ? `<div><b>조건</b>${글(h.조건)}</div>` : ""}
+          ${h.제외 ? `<div><b>🚫 안 되는 경우</b>${글(h.제외)}</div>` : ""}
+          ${h.상세 ? `<div><b>카드사 안내 문구</b>${글(h.상세)}</div>` : ""}
+          ${정보 ? `<div><b>🔢 횟수</b>${글(횟수글(정보))}</div>` : ""}
+          <div><b>확인 상태</b>카드고릴라(카드 비교 사이트) ${글(카드기준일(c))} 기준 — 카드사 앱에서 꼭 확인하세요. <a href="${글(h.출처)}" target="_blank" rel="noopener noreferrer">원문</a></div>
+        </div>
+        ${c.전월실적 > 0 ? `<button class="btn small${채움 ? "" : " primary"}" id="k실적">${채움 ? "✓ 이번 달 실적 채웠어요 (취소)" : "이번 달 실적 채웠어요"}</button>` : ""}
+        ${정보 ? `<button class="btn primary small" id="k썼어요">이 혜택 썼어요</button>` : ""}
+        <h3 style="margin-top:16px">⚠️ 여기서 안 됐어요</h3>
+        <div class="recs">${내기록.length ? 내기록.map((r, i) => `<div class="rec-row"><span>${글(r.메모)} (${글(r.날짜)})</span><button data-del="${i}">지우기</button></div>`).join("") : `<div class="small" style="text-align:left">아직 기록이 없어요.</div>`}</div>
+        <input id="r메모" placeholder="예: 백화점 안 매장은 안 됨" maxlength="60">
+        <div class="formmsg" id="fmsg"></div>
+        <button class="btn small" id="r추가">기록 남기기</button>
+        <button class="btn" id="d닫기">닫기</button>`);
+      $("#d닫기").onclick = 시트닫기;
+      if ($("#k실적")) $("#k실적").onclick = () => { if (채움) delete 내정보.실적[id]; else 내정보.실적[id] = 기간키().월; 내정보저장(); 그리기(); 새로그리기(); };
+      if ($("#k썼어요")) $("#k썼어요").onclick = () => { 사용바꾸기(정보.키, 정보.상세.map((x) => x.단위), true); 상태("✅ 썼어요로 기록했어요."); 그리기(); 새로그리기(); };
+      $("#r추가").onclick = () => {
+        const 메모 = $("#r메모").value.trim(); if (!메모) return 폼오류("어느 지점에서 어떻게 안 됐는지 적어 주세요.");
+        const d = 기록읽기(); (d[h.기록키] = d[h.기록키] || []).push({ 메모, 날짜: 오늘() }); 기록쓰기(d); 상태("✅ 기록을 남겼어요."); 그리기(); 새로그리기();
+      };
+      $("#sheetBody").querySelectorAll("[data-del]").forEach((b) => b.onclick = () => {
+        const d = 기록읽기(); (d[h.기록키] || []).splice(Number(b.dataset.del), 1); if (!(d[h.기록키] || []).length) delete d[h.기록키]; 기록쓰기(d); 그리기(); 새로그리기();
+      });
+    };
+    그리기();
+  }
+
+  // ----- 사전 혜택 상세 -----
+  function 사전상세(번호) {
+    const h = 사전혜택목록().find((x) => x.사전번호 === 번호);
+    if (!h) return;
+    const 신뢰설명 = { "공식": "통신사·브랜드 공식 페이지에서 확인했어요.", "언론 보도": "뉴스 기사를 기준으로 했어요.", "확인 필요": "공식 안내가 분명하지 않아요. 해당 앱에서 꼭 확인하세요." }[h.신뢰] || "";
+    const 링크 = /^https:\/\//.test(h.출처) ? `<a href="${글(h.출처)}" target="_blank" rel="noopener noreferrer">${글(h.출처)}</a>` : "없음";
+    const 그리기 = () => {
+      const 내기록 = 기록읽기()[h.기록키] || [], 정보 = 횟수정보(h), p = 방법표시[h.방법종류] || ["", ""];
+      시트열기(`
+        <h3>${아이콘((전체매장().find((m) => m.이름 === h.적용) || {}).분류)} ${글(h.적용)} · ${글(h.수단)}</h3>
+        <div class="dl">
+          <div><b>혜택</b>${글(h.내용)}</div>
+          <div><b>${p[0]} 결제할 때</b>${글(h.방법설명)}</div>
+          ${h.미리 ? `<div><b>⏰ 미리 해둘 일</b>${글(h.미리)}</div>` : ""}
+          ${h.조건 ? `<div><b>조건</b>${글(h.조건)}</div>` : ""}
+          ${h.제외 ? `<div><b>🚫 사용 못 하는 곳</b>${글(h.제외)}</div>` : ""}
+          ${h.중복 ? `<div><b>🔁 다른 혜택과 함께</b>${글(h.중복)}</div>` : ""}
+          ${h.팁 ? `<div><b>💡 더 받는 방법</b>${글(h.팁)}</div>` : ""}
+          ${정보 ? `<div><b>🔢 횟수</b>${글(정보.이름)} — ${글(횟수글(정보))}</div>` : ""}
+          <div><b>확인 상태</b>${글(h.신뢰)} — ${글(신뢰설명)}</div>
+          <div><b>기준일 · 출처</b>${글(사전_기준일)} · ${링크}</div>
+        </div>
+        ${정보 ? `<button class="btn primary small" data-use="${글(정보.키)}">이 혜택 썼어요</button>` : ""}
+        <h3 style="margin-top:16px">⚠️ 여기서 안 됐어요</h3>
+        <p class="note">실제로 안 되는 지점이 있었다면 남겨 두세요. 이 폰에만 저장돼요.</p>
+        <div class="recs">${내기록.length ? 내기록.map((r, i) => `<div class="rec-row"><span>${글(r.메모)} (${글(r.날짜)})</span><button data-del="${i}">지우기</button></div>`).join("") : `<div class="small" style="text-align:left">아직 기록이 없어요.</div>`}</div>
+        <input id="r메모" placeholder="예: 강남역점에서 안 된다고 함" maxlength="60">
+        <div class="formmsg" id="fmsg"></div>
+        <button class="btn small" id="r추가">기록 남기기</button>
+        <button class="btn" id="d닫기">닫기</button>`);
+      $("#d닫기").onclick = 시트닫기;
+      const 쓴버튼 = $("#sheetBody [data-use]");
+      if (쓴버튼) 쓴버튼.onclick = () => { 사용바꾸기(정보.키, 정보.상세.map((x) => x.단위), true); 상태("✅ 썼어요로 기록했어요."); 그리기(); 새로그리기(); };
+      $("#r추가").onclick = () => {
+        const 메모 = $("#r메모").value.trim();
+        if (!메모) return 폼오류("어느 지점에서 어떻게 안 됐는지 적어 주세요.");
+        const d = 기록읽기(); (d[h.기록키] = d[h.기록키] || []).push({ 메모, 날짜: 오늘() }); 기록쓰기(d);
+        상태("✅ 기록을 남겼어요."); 그리기(); 새로그리기();
+      };
+      $("#sheetBody").querySelectorAll("[data-del]").forEach((b) => b.onclick = () => {
+        const d = 기록읽기(); (d[h.기록키] || []).splice(Number(b.dataset.del), 1);
+        if (!(d[h.기록키] || []).length) delete d[h.기록키];
+        기록쓰기(d); 그리기(); 새로그리기();
+      });
+    };
+    그리기();
+  }
+
+  // ----- 내 혜택 추가 (고르기만 하면 되게) -----
+  const 형태목록 = [["%할인", "% 할인"], ["%적립", "% 적립"], ["원할인", "원 할인"], ["무료", "무료 제공"], ["기타", "기타"]];
+  const 퍼센트값 = [1, 2, 3, 5, 7, 10, 15, 20, 30, 50];
+  const 원값 = [500, 1000, 2000, 3000, 5000, 10000];
+  const 조건목록 = ["1일 1회", "월 1회", "월 2회", "월 4회", "연 1회", "전월실적 30만원", "전월실적 50만원", "1만원 이상 결제", "앱에서 쿠폰 필요", "평일만", "주말만", "온라인만"];
+  const 방법목록 = [["카드결제", "💳 그 카드로 결제"], ["바코드", "📱 바코드 보여주기"], ["쿠폰", "🎟️ 쿠폰 먼저 받기"], ["번호입력", "🔢 번호 입력"], ["자동", "⚡ 자동 적용"]];
+  function 혜택폼(id, 미리값) {
+    const 기존 = id ? 데이터.혜택목록.find((h) => h.id === id) : null;
+    const f = 기존 ? {
+      적용: 기존.적용, 수단종류: 기존.수단종류 || "기타", 카드사: 기존.카드사 || "", 카드이름: 기존.카드이름 || "", 수단이름: 기존.수단이름 || (기존.수단종류 ? "" : 기존.수단),
+      형태: 기존.형태 || (기존.할인율 > 0 ? "%할인" : "기타"), 값: 기존.값 || (기존.할인율 > 0 ? String(기존.할인율) : ""),
+      조건들: (기존.조건들 || []).slice(), 메모: 기존.메모 != null ? 기존.메모 : (기존.조건들 && 기존.조건들.length ? "" : 기존.조건 || ""),
+      방법종류: 기존.방법종류 || "" }
+      : Object.assign({ 적용: "", 수단종류: "카드", 카드사: "", 카드이름: "", 수단이름: "", 형태: "%할인", 값: "", 조건들: [], 메모: "", 방법종류: "", 직접: false }, 미리값 || {});
+    let 매장검색 = "", 카드검색 = "";
+    const 기본방법값 = () => f.방법종류 || (f.수단종류 === "카드" ? "카드결제" : f.수단종류 === "쿠폰" ? "쿠폰" : "바코드");
+    const 종류칩 = () => `<div class="chips">${[["카드", "💳 카드"], ["멤버십", "🏷️ 멤버십·포인트"], ["쿠폰", "🎟️ 쿠폰"], ["기타", "✏️ 기타"]].map(([v, t]) => `<button class="chip${f.수단종류 === v ? " on" : ""}" data-f="수단종류" data-v="${v}">${t}</button>`).join("")}</div>`;
+    // 카드·멤버십은 목록에서 고르면 혜택이 자동으로 들어감 (목록에 없을 때만 직접 입력)
+    const 카드결과HTML = () => {
+      const 목록 = 카드_목록.filter((c) => (!f.카드사 || c.카드사 === f.카드사) && (!카드검색.trim() || 이름맞음(c.이름, 카드검색)));
+      return (f.카드사 || 카드검색.trim()) && 목록.length ? 목록.map((c) =>
+        `<button class="row" data-cpick="${글(c.id)}"><span class="main">${내정보.카드.includes(c.id) ? "✓ " : ""}${글(c.이름)}</span><span class="sub">${글(c.종류)} · 매장 혜택 ${c.혜택.length}개${c.요약 ? " · " + 글(c.요약.slice(0, 50)) : ""}</span></button>`).join("")
+        : `<div class="empty">${f.카드사 || 카드검색.trim() ? "목록에 없어요. 아래 [🌐 카드고릴라에서 찾기]를 눌러 보세요." : "카드사를 누르거나 카드 이름을 쳐 보세요."}</div>`;
+    };
+    const 자동그리기 = () => {
+      const 위치 = $("#sheet").hidden ? 0 : $("#sheetBody").scrollTop;
+      let 본문 = "";
+      if (f.수단종류 === "카드") {
+        본문 = `<p class="note">카드사 → 카드를 고르면 그 카드의 혜택과 조건이 매장마다 자동으로 들어가요.</p>
+          <div class="chips">${카드사들.map((c) => `<button class="chip sm${f.카드사 === c ? " on" : ""}" data-f="카드사" data-v="${c}">${c}</button>`).join("")}</div>
+          <input id="f카드검색" placeholder="카드 이름 (예: 현대카드M, 노리2)" value="${글(카드검색)}" autocomplete="off">
+          <div class="rows" id="f카드결과" style="margin-top:10px">${카드결과HTML()}</div>
+          <button class="btn primary" id="f온라인">🌐 목록에 없어요 → 카드고릴라에서 찾기</button>`;
+      } else {
+        본문 = `<p class="note">누르면 [내 멤버십]에 바로 추가돼요. 등급이 있는 멤버십은 등급도 골라야 해요.</p>
+          <div class="chips">${사전_멤버십.map((m) => { const 켜짐 = 내정보.통신사 === m.id || 내정보.포인트.includes(m.id);
+            return `<button class="chip${켜짐 ? " on" : ""}" data-mpick="${m.id}">${글(m.이름)}</button>`; }).join("")}</div>`;
+      }
+      시트열기(`<h3>내 혜택 추가</h3><div class="fsec"><b>무엇으로 받나요?</b>${종류칩()}${본문}</div>
+        <button class="btn" data-f="직접" data-v="1">✏️ 혜택을 직접 입력</button>
+        <button class="btn" id="f취소">닫기</button>`);
+      $("#sheetBody").scrollTop = 위치;
+      $("#f취소").onclick = 시트닫기;
+      $("#sheetBody").querySelectorAll("[data-f]").forEach((b) => b.onclick = () => {
+        const k = b.dataset.f, v = b.dataset.v;
+        if (k === "수단종류") { f.수단종류 = v; f.방법종류 = ""; } else if (k === "카드사") f.카드사 = f.카드사 === v ? "" : v; else f[k] = v;
+        그리기();
+      });
+      // 검색칸에 글자를 칠 때는 아래 결과만 바꿈 (한글이 쪼개지지 않게)
+      const 카드결과연결 = () => $("#sheetBody").querySelectorAll("[data-cpick]").forEach((b) => b.onclick = () => 카드미리보기(b.dataset.cpick, () => 그리기()));
+      if ($("#f카드검색")) $("#f카드검색").oninput = (e) => { 카드검색 = e.target.value; $("#f카드결과").innerHTML = 카드결과HTML(); 카드결과연결(); };
+      if ($("#f온라인")) $("#f온라인").onclick = () => 온라인카드찾기(카드검색.trim(), () => 그리기());
+      카드결과연결();
+      $("#sheetBody").querySelectorAll("[data-mpick]").forEach((b) => b.onclick = () => {
+        const m = 멤버십찾기(b.dataset.mpick);
+        if (m.분류 === "통신사") {
+          if (내정보.통신사 !== m.id) { 내정보.통신사 = m.id; 내정보.등급 = null; 내정보.등급추정 = false; }
+          내정보저장(); 시트닫기(); 화면전환("member"); 상태(`✅ ${m.이름}을(를) 골랐어요. 아래에서 등급을 골라주세요.`); return;
+        }
+        const 있음 = 내정보.포인트.includes(m.id);
+        if (있음) { 내정보.포인트 = 내정보.포인트.filter((x) => x !== m.id); delete 내정보.포인트등급[m.id]; } else 내정보.포인트 = 내정보.포인트.concat(m.id);
+        내정보저장(); 새로그리기();
+        if (!있음 && m.등급) { 시트닫기(); 화면전환("member"); 상태(`✅ ${m.이름}을(를) 추가했어요. 등급을 골라주세요.`); return; }
+        상태(있음 ? `${m.이름} 선택을 뺐어요.` : `✅ ${m.이름}을(를) 추가했어요. 혜택이 자동으로 붙었어요.`); 그리기();
+      });
+    };
+    const 그리기 = () => {
+      if (!기존 && !f.직접 && (f.수단종류 === "카드" || f.수단종류 === "멤버십")) return 자동그리기();
+      const 매장들 = 전체매장().map((m) => m.이름).concat(분류목록().map((c) => c + " 전체"), ["모든 매장"]);
+      const 매장칩HTML = () => 매장들.filter((n) => !매장검색.trim() || 이름맞음(n, 매장검색)).slice(0, 40)
+        .map((n) => `<button class="chip sm${f.적용 === n ? " on" : ""}" data-f="적용" data-v="${글(n)}">${글(n)}</button>`).join("");
+      const 값목록 = f.형태 === "원할인" ? 원값 : f.형태.startsWith("%") ? 퍼센트값 : [];
+      const 위치 = $("#sheet").hidden ? 0 : $("#sheetBody").scrollTop;
+      시트열기(`
+        <h3>${기존 ? "내 혜택 고치기" : "내 혜택 추가"}</h3>
+        <div class="fsec"><b>① 어디서 받나요?</b>
+          ${f.적용 ? `<div class="fsel">✓ ${글(f.적용)}</div>` : ""}
+          <input id="f매장검색" placeholder="매장 검색" value="${글(매장검색)}" autocomplete="off">
+          <div class="chips pick" id="f매장칩">${매장칩HTML()}</div></div>
+        <div class="fsec"><b>② 무엇으로 받나요?</b>
+          ${종류칩()}${!기존 && (f.수단종류 === "카드" || f.수단종류 === "멤버십") ? `<p class="note">✏️ 목록에 없는 ${f.수단종류 === "카드" ? "카드" : "멤버십"}를 직접 넣고 있어요. 위 버튼을 다시 누르면 목록으로 돌아가요.</p>` : ""}
+          ${f.수단종류 === "카드"
+            ? `<div class="chips">${카드사들.map((c) => `<button class="chip sm${f.카드사 === c ? " on" : ""}" data-f="카드사" data-v="${c}">${c}</button>`).join("")}</div>
+               <input id="f카드이름" placeholder="카드 이름 (예: Deep Dream)" value="${글(f.카드이름)}">`
+            : `<input id="f수단이름" list="수단들" placeholder="이름 (예: 올리브영 멤버십)" value="${글(f.수단이름)}">
+               <datalist id="수단들">${[...new Set(데이터.혜택목록.map((h) => h.수단).concat(사전_멤버십.map((m) => m.이름)))].map((s) => `<option value="${글(s)}">`).join("")}</datalist>`}</div>
+        <div class="fsec"><b>③ 어떤 혜택인가요?</b>
+          <div class="chips">${형태목록.map(([v, t]) => `<button class="chip${f.형태 === v ? " on" : ""}" data-f="형태" data-v="${v}">${t}</button>`).join("")}</div>
+          ${값목록.length ? `<div class="chips">${값목록.map((v) => `<button class="chip sm${String(f.값) === String(v) ? " on" : ""}" data-f="값" data-v="${v}">${f.형태 === "원할인" ? v.toLocaleString() + "원" : v + "%"}</button>`).join("")}</div>
+            <input id="f값" type="number" inputmode="decimal" placeholder="다른 숫자 직접 입력" value="${값목록.map(String).includes(String(f.값)) ? "" : 글(f.값)}">` : ""}</div>
+        <div class="fsec"><b>④ 조건 (해당하는 것 모두)</b>
+          <div class="chips">${조건목록.map((c) => `<button class="chip sm${f.조건들.includes(c) ? " on" : ""}" data-f="조건들" data-v="${c}">${c}</button>`).join("")}</div></div>
+        <div class="fsec"><b>⑤ 결제할 때 어떻게 하나요?</b>
+          <div class="chips">${방법목록.map(([v, t]) => `<button class="chip sm${기본방법값() === v ? " on" : ""}" data-f="방법종류" data-v="${v}">${t}</button>`).join("")}</div></div>
+        <div class="fsec"><b>메모 (선택)</b><input id="f메모" placeholder="${f.형태 === "기타" || f.형태 === "무료" ? "예: 아메리카노 1잔 무료" : "예: 제외 매장 등"}" value="${글(f.메모)}"></div>
+        <div class="formmsg" id="fmsg"></div>
+        <button class="btn primary" id="f저장">저장</button>
+        ${기존 ? `<button class="btn danger" id="f삭제">이 혜택 지우기</button>` : ""}
+        <button class="btn" id="f취소">취소</button>`);
+      $("#sheetBody").scrollTop = 위치;
+      const 입력보관 = () => {
+        if ($("#f카드이름")) f.카드이름 = $("#f카드이름").value.trim();
+        if ($("#f수단이름")) f.수단이름 = $("#f수단이름").value.trim();
+        if ($("#f값") && $("#f값").value.trim()) f.값 = $("#f값").value.trim();
+        if ($("#f메모")) f.메모 = $("#f메모").value.trim();
+      };
+      const 칩누름 = (b) => () => {
+        입력보관();
+        const k = b.dataset.f, v = b.dataset.v;
+        if (k === "조건들") f.조건들 = f.조건들.includes(v) ? f.조건들.filter((x) => x !== v) : f.조건들.concat(v);
+        else if (k === "형태") { if (f.형태 !== v) f.값 = ""; f.형태 = v; }
+        else if (k === "수단종류") { f.수단종류 = v; if (!기존) { f.방법종류 = ""; f.직접 = false; } }
+        else f[k] = v;
+        그리기();
+      };
+      // 매장 검색칸에 글자를 칠 때는 아래 매장 버튼만 바꿈 (한글이 쪼개지지 않게)
+      $("#f매장검색").oninput = (e) => { 매장검색 = e.target.value; $("#f매장칩").innerHTML = 매장칩HTML(); $("#f매장칩").querySelectorAll("[data-f]").forEach((b) => b.onclick = 칩누름(b)); };
+      $("#sheetBody").querySelectorAll("[data-f]").forEach((b) => b.onclick = 칩누름(b));
+      $("#f취소").onclick = 시트닫기;
+      $("#f저장").onclick = () => {
+        입력보관();
+        if (!f.적용) return 폼오류("① 어디서 받는 혜택인지 골라주세요.");
+        if (f.수단종류 === "카드" && !f.카드사) return 폼오류("② 카드사를 골라주세요.");
+        if (f.수단종류 !== "카드" && !f.수단이름) return 폼오류("② 이름을 적어주세요.");
+        const 숫자 = Number(f.값);
+        if (f.형태.startsWith("%") && !(숫자 > 0 && 숫자 <= 100)) return 폼오류("③ 몇 %인지 골라주세요.");
+        if (f.형태 === "원할인" && !(숫자 > 0)) return 폼오류("③ 몇 원인지 골라주세요.");
+        if ((f.형태 === "기타" || f.형태 === "무료") && !f.메모 && f.형태 === "기타") return 폼오류("기타 혜택은 메모에 내용을 적어주세요.");
+        const 수단 = f.수단종류 === "카드" ? `${f.카드사}${f.카드이름 ? " " + f.카드이름 : "카드"}` : f.수단이름;
+        const 내용 = { "%할인": `${숫자}% 할인`, "%적립": `${숫자}% 적립`, "원할인": `${숫자.toLocaleString()}원 할인`, "무료": f.메모 || "무료 제공", "기타": f.메모 }[f.형태];
+        const 횟수맵 = { "월 1회": { 월: 1 }, "월 2회": { 월: 2 }, "월 4회": { 월: 4 }, "연 1회": { 연: 1 } };
+        const 횟수 = f.조건들.map((c) => 횟수맵[c]).find(Boolean) || null;
+        const 조건 = f.조건들.concat(f.메모 && f.형태 !== "기타" && f.형태 !== "무료" ? [f.메모] : []).join(", ");
+        const 종류 = f.수단종류 === "카드" ? (f.형태 === "%적립" ? "카드적립" : "카드할인") : f.수단종류 === "쿠폰" ? "쿠폰" : f.형태 === "%적립" ? "포인트적립" : "멤버십";
+        const 값 = { 적용: f.적용, 수단, 종류, 내용, 할인율: f.형태.startsWith("%") ? 숫자 : 0, 조건, 조건들: f.조건들, 횟수,
+          수단종류: f.수단종류, 카드사: f.카드사, 카드이름: f.카드이름, 수단이름: f.수단이름, 형태: f.형태, 값: String(f.값 || ""), 메모: f.메모, 방법종류: 기본방법값() };
+        if (기존) Object.assign(기존, 값); else 데이터.혜택목록.push(Object.assign({ id: 새ID() }, 값));
+        데이터저장(); 시트닫기(); 새로그리기(); 상태(기존 ? "✅ 혜택을 고쳤어요." : `✅ ${f.적용}에 '${수단} ${내용}'을(를) 추가했어요.`);
+      };
+      if (기존) $("#f삭제").onclick = () => {
+        if (!confirm(`'${기존.수단}' 혜택을 지울까요?`)) return;
+        데이터.혜택목록 = 데이터.혜택목록.filter((x) => x.id !== 기존.id);
+        데이터저장(); 시트닫기(); 새로그리기(); 상태("혜택을 지웠어요.");
+      };
+    };
+    그리기();
+  }
+
+  function 매장폼(i) {
+    const 기존 = i == null ? null : 데이터.매장목록[i];
+    const m = 기존 || { 이름: "", 분류: "" };
+    시트열기(`
+      <h3>${기존 ? "매장 고치기" : "매장 추가"}</h3>
+      <label>매장 이름<input id="m이름" value="${글(m.이름)}" placeholder="예: 다이소"></label>
+      <div class="fsec"><b>분류</b><div class="chips">${분류목록().concat(["생활", "기타"]).filter((c, k, a) => a.indexOf(c) === k).map((c) => `<button class="chip sm${m.분류 === c ? " on" : ""}" data-c="${글(c)}">${아이콘(c)} ${글(c)}</button>`).join("")}</div></div>
+      <p class="note">분류가 같으면 "카페 전체" 같은 혜택이 함께 적용돼요.</p>
+      <div class="formmsg" id="fmsg"></div>
+      <button class="btn primary" id="m저장">저장</button>
+      ${기존 ? `<button class="btn danger" id="m삭제">이 매장 지우기</button>` : ""}
+      <button class="btn" id="m취소">취소</button>`);
+    let 분류 = m.분류;
+    $("#sheetBody").querySelectorAll("[data-c]").forEach((b) => b.onclick = () => { 분류 = b.dataset.c; $("#sheetBody").querySelectorAll("[data-c]").forEach((x) => x.classList.toggle("on", x === b)); });
+    $("#m취소").onclick = 시트닫기;
+    $("#m저장").onclick = () => {
+      const 이름 = $("#m이름").value.trim();
+      if (!이름) return 폼오류("매장 이름을 적어주세요.");
+      if (!(기존 && 기존.이름 === 이름) && 전체매장().some((x) => x.이름 === 이름)) return 폼오류("같은 이름의 매장이 이미 있어요. (기본으로 들어 있는 매장일 수 있어요)");
+      if (기존) {
+        const 옛이름 = 기존.이름;
+        if (옛이름 !== 이름) {
+          데이터.혜택목록.forEach((h) => { if (h.적용 === 옛이름) h.적용 = 이름; });
+          const 위치 = 기억위치읽기();
+          if (위치[옛이름]) { 위치[이름] = (위치[이름] || []).concat(위치[옛이름]); delete 위치[옛이름]; 기억위치쓰기(위치); }
+          if (선택매장 === 옛이름) 선택매장 = 이름;
+        }
+        기존.이름 = 이름; 기존.분류 = 분류;
+      } else 데이터.매장목록.push({ 이름, 분류, 위치: [] });
+      데이터저장(); 시트닫기(); 새로그리기(); 상태(기존 ? "✅ 매장을 고쳤어요." : `✅ '${이름}' 매장을 추가했어요.`);
+    };
+    if (기존) $("#m삭제").onclick = () => {
+      const n = 데이터.혜택목록.filter((h) => h.적용 === 기존.이름).length;
+      if (!confirm(`'${기존.이름}' 매장을 지울까요?` + (n ? `\n이 매장에 넣은 혜택 ${n}개도 같이 지워져요.` : ""))) return;
+      데이터.혜택목록 = 데이터.혜택목록.filter((h) => h.적용 !== 기존.이름);
+      데이터.매장목록.splice(i, 1);
+      const 위치 = 기억위치읽기(); delete 위치[기존.이름]; 기억위치쓰기(위치);
+      if (선택매장 === 기존.이름) 선택매장 = null;
+      데이터저장(); 시트닫기(); 새로그리기(); 상태("매장을 지웠어요.");
+    };
+  }
+
+  // ===== 백업 =====
+  function 내보내기() {
+    const 내용 = JSON.stringify({ 종류: "내혜택앱 백업", 버전: 5, 날짜: 오늘(), 내정보, 매장목록: 데이터.매장목록, 혜택목록: 데이터.혜택목록,
+      내기록: 기록읽기(), 사용기록: 사용읽기(), 기억위치: 기억위치읽기(), 검색카드: 검색카드들() }, null, 2);
+    시트열기(`<h3>목록 내보내기</h3>
+      <p class="note">파일로 저장하거나 복사해서 메모 앱 등에 보관하세요. 다른 폰에서 [목록 불러오기]로 넣으면 그대로 옮겨져요.
+      멤버십 설정, 기록, 기억한 매장 위치도 함께 들어 있으니 다른 사람에게 줄 때 참고하세요.</p>
+      <textarea id="b내용" readonly>${글(내용)}</textarea>
+      <button class="btn primary" id="b파일">파일로 저장</button><button class="btn" id="b복사">복사하기</button><button class="btn" id="b닫기">닫기</button>`);
+    $("#b닫기").onclick = 시트닫기;
+    $("#b파일").onclick = () => { const 주소 = URL.createObjectURL(new Blob([내용], { type: "application/json" })); const a = document.createElement("a"); a.href = 주소; a.download = `모아일_백업_${오늘()}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(주소), 10000); };
+    $("#b복사").onclick = () => {
+      const 완료 = () => { $("#b복사").textContent = "✅ 복사했어요"; };
+      const 옛방식 = () => { const ta = $("#b내용"); ta.removeAttribute("readonly"); ta.select(); try { if (document.execCommand("copy")) 완료(); } catch (e) {} ta.setAttribute("readonly", ""); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(내용).then(완료, 옛방식); else 옛방식();
+    };
+  }
+  function 불러오기() {
+    시트열기(`<h3>목록 불러오기</h3>
+      <p class="note">백업 파일을 고르거나, 복사해 둔 내용을 아래에 붙여넣으세요. <b>지금 목록은 불러온 내용으로 바뀌어요.</b></p>
+      <label>백업 파일 고르기<input type="file" id="i파일" accept=".json,application/json,text/plain"></label>
+      <textarea id="i내용" placeholder="또는 여기에 붙여넣기"></textarea>
+      <div class="formmsg" id="fmsg"></div>
+      <button class="btn primary" id="i확인">불러오기</button><button class="btn" id="i취소">취소</button>`);
+    $("#i취소").onclick = 시트닫기;
+    $("#i파일").onchange = (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $("#i내용").value = r.result; }; r.readAsText(f); };
+    $("#i확인").onclick = () => {
+      let d;
+      try { d = JSON.parse($("#i내용").value); } catch (e) { return 폼오류("내용을 읽지 못했어요. 내보내기로 만든 내용 전체를 넣었는지 확인해 주세요."); }
+      if (!d || !Array.isArray(d.매장목록) || !Array.isArray(d.혜택목록)) return 폼오류("혜택앱 백업 내용이 아니에요.");
+      const 새것 = 데이터정리(d);
+      if (!confirm(`매장 ${새것.매장목록.length}곳, 혜택 ${새것.혜택목록.length}개를 불러올까요?\n지금 목록은 바뀌어요.`)) return;
+      데이터 = 새것; 데이터저장();
+      검색카드합치기(d.검색카드); // 인터넷에서 찾아 넣었던 카드도 함께 (내정보보다 먼저)
+      if (d.내정보) { 내정보 = 내정보정리(d.내정보); 내정보저장(); }
+      검색카드저장();
+      if (d.내기록 && typeof d.내기록 === "object") 기록쓰기(d.내기록);
+      if (d.사용기록 && typeof d.사용기록 === "object") 쓰기(사용키, d.사용기록);
+      if (d.기억위치 && typeof d.기억위치 === "object") 기억위치쓰기(d.기억위치);
+      선택매장 = null; 시트닫기(); 새로그리기(); 상태("✅ 목록을 불러왔어요.");
+    };
+  }
+
+  // ===== 위치 기능 =====
+  function 위치가져오기(성공, 실패) {
+    if (!navigator.geolocation) { 실패({ code: 0 }); return; }
+    navigator.geolocation.getCurrentPosition((p) => 성공({ 위도: p.coords.latitude, 경도: p.coords.longitude }), 실패, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+  }
+  function 위치오류메시지(e) {
+    if (e.code === 1) return "위치 사용이 허용되지 않았어요. 매장을 직접 골라주세요.";
+    if (e.code === 0) return "이 화면에서는 위치 기능을 쓸 수 없어요. 매장을 직접 골라주세요.";
+    return "위치를 찾지 못했어요. 매장을 직접 골라주세요.";
+  }
+  function 근처매장찾기() {
+    const 위치있는매장 = 전체매장().filter((m) => 매장위치들(m).length);
+    if (!위치있는매장.length) { 상태("결제할 매장을 골라주세요. 매장에서 '위치 기억하기'를 해두면 다음엔 자동으로 골라져요."); return; }
+    상태("📍 지금 위치를 확인하는 중...");
+    위치가져오기((지금위치) => {
+      let 가장 = null;
+      위치있는매장.forEach((m) => 매장위치들(m).forEach((w) => { const d = 거리(지금위치, w); if (!가장 || d < 가장.d) 가장 = { 매장: m, d }; }));
+      if (가장 && 가장.d <= 근처기준미터) { 상태(`📍 근처 매장: ${가장.매장.이름} (약 ${Math.round(가장.d)}m)`); 매장선택(가장.매장.이름, true); }
+      else 상태("근처에 기억해 둔 매장이 없어요. 매장을 골라주세요.");
+    }, (e) => 상태(위치오류메시지(e)));
+  }
+  function 위치기억하기() {
+    const 이름 = 선택매장; 상태("📍 위치를 확인하는 중...");
+    위치가져오기((지금위치) => { const d = 기억위치읽기(); (d[이름] = d[이름] || []).push(지금위치); 상태(기억위치쓰기(d) ? `✅ 지금 위치를 '${이름}'(으)로 기억했어요.` : 저장실패안내); 결과그리기(); }, (e) => 상태(위치오류메시지(e)));
+  }
+  function 위치지우기() {
+    if (!confirm(`'${선택매장}'(으)로 기억한 위치를 모두 지울까요?`)) return;
+    const d = 기억위치읽기(); delete d[선택매장]; 기억위치쓰기(d); 상태(`'${선택매장}' 위치 기억을 지웠어요.`); 결과그리기();
+  }
+
+  // ===== 버튼 연결 =====
+  function 썼어요처리(e) {
+    const u = e.target.closest("[data-use]"), r = e.target.closest("[data-unuse]");
+    if (!u && !r) return false;
+    e.stopPropagation();
+    const 키 = (u || r).dataset[u ? "use" : "unuse"];
+    const 정보 = 모든혜택().map(횟수정보).find((x) => x && x.키 === 키);
+    if (!정보) return true;
+    사용바꾸기(키, 정보.상세.map((x) => x.단위), !!u);
+    상태(u ? `✅ '${정보.이름}' 썼어요로 기록했어요.` : `↩ '${정보.이름}' 기록을 하나 되돌렸어요.`);
+    새로그리기(); return true;
+  }
+  document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => 화면전환(b.dataset.view)));
+  $("#search").addEventListener("input", 매장버튼그리기);
+  $("#setupBanner").addEventListener("click", (e) => { const b = e.target.closest("[data-go]"); if (!b) return; if (b.dataset.go === "wizard") 처음설정(1); else 화면전환(b.dataset.go); });
+  $("#leftPanel").addEventListener("click", 썼어요처리);
+  $("#recent").addEventListener("click", (e) => { const b = e.target.closest("[data-name]"); if (b) 매장선택(b.dataset.name, true); });
+  $("#cats").addEventListener("click", (e) => { const b = e.target.closest("[data-cat]"); if (b) { 선택분류 = b.dataset.cat; 매장버튼그리기(); } });
+  $("#chips").addEventListener("click", (e) => { const b = e.target.closest(".chip"); if (b) 매장선택(b.dataset.name, true); });
+  $("#result").addEventListener("click", (e) => {
+    if (썼어요처리(e)) return;
+    const k = e.target.closest("[data-card]"); if (k) { const [id, n] = k.dataset.card.split("|"); return 카드혜택상세(id, Number(n)); }
+    const d = e.target.closest("[data-dict]"); if (d) return 사전상세(Number(d.dataset.dict));
+    const b = e.target.closest("[data-benefit]"); if (b) 혜택폼(b.dataset.benefit);
+  });
+  $("#findBtn").addEventListener("click", 근처매장찾기);
+  $("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") 시트닫기(); });
+  $("#wizBtn").addEventListener("click", () => 처음설정(1));
+  $("#installBtn").addEventListener("click", 설치안내);
+
+  $("#cardAddBtn").addEventListener("click", () => 카드고르기(""));
+  $("#view-member").addEventListener("click", (e) => {
+    const pf = e.target.closest("[data-perf]");
+    if (pf) { const id = pf.dataset.perf; if (내정보.실적[id] === 기간키().월) delete 내정보.실적[id]; else 내정보.실적[id] = 기간키().월; 내정보저장(); 새로그리기(); 상태(내정보.실적[id] ? "✅ 이번 달 실적을 채웠다고 표시했어요. 카드 혜택을 추천에 넣어요." : "실적 표시를 취소했어요."); return; }
+    const cv = e.target.closest("[data-cardview]"); if (cv) return 카드미리보기(cv.dataset.cardview);
+    const cr = e.target.closest("[data-cardrm]");
+    if (cr) { const c = 카드찾기(cr.dataset.cardrm); if (!confirm(`'${c.이름}'을(를) 내 카드에서 뺄까요?`)) return; 내정보.카드 = 내정보.카드.filter((x) => x !== c.id); delete 내정보.실적[c.id]; 내정보저장(); 새로그리기(); 상태(`${c.이름}을(를) 뺐어요.`); return; }
+    const c = e.target.closest("[data-carrier]");
+    if (c) {
+      const id = c.dataset.carrier || null;
+      if (id !== 내정보.통신사) { 내정보.통신사 = id; 내정보.등급 = null; 내정보.등급추정 = false; }
+      내정보저장(); 새로그리기(); 상태(id ? `✅ ${멤버십찾기(id).이름}을(를) 골랐어요. 아래에서 등급도 골라주세요.` : "통신사 멤버십을 쓰지 않도록 했어요."); return;
+    }
+    const g = e.target.closest("[data-grade]");
+    if (g) {
+      const id = g.dataset.for;
+      if (id === 내정보.통신사) { 내정보.등급 = g.dataset.grade; 내정보.등급추정 = false; } else 내정보.포인트등급[id] = g.dataset.grade;
+      내정보저장(); 새로그리기(); 상태(`✅ ${멤버십찾기(id).이름} 등급을 ${g.dataset.grade}(으)로 저장했어요.`); return;
+    }
+    const p = e.target.closest("[data-point]");
+    if (p) {
+      const id = p.dataset.point, m = 멤버십찾기(id);
+      if (내정보.포인트.includes(id)) { 내정보.포인트 = 내정보.포인트.filter((x) => x !== id); delete 내정보.포인트등급[id]; } else 내정보.포인트 = 내정보.포인트.concat(id);
+      내정보저장(); 새로그리기(); 상태(내정보.포인트.includes(id) ? `✅ ${m.이름}을(를) 골랐어요.${m.등급 ? " 등급도 골라주세요." : ""}` : `${m.이름} 선택을 뺐어요.`); return;
+    }
+    const bd = e.target.closest("[data-bday]");
+    if (bd) { const v = Number(bd.dataset.bday); 내정보.생일월 = 내정보.생일월 === v ? null : v; 내정보저장(); 새로그리기(); 상태(내정보.생일월 ? `🎂 생일 달을 ${v}월로 저장했어요.` : "생일 달을 지웠어요."); }
+  });
+
+  $("#view-manage").addEventListener("click", (e) => {
+    const s = e.target.closest("[data-store]"); if (s) return 매장폼(Number(s.dataset.store));
+    const b = e.target.closest("[data-benefit]"); if (b) return 혜택폼(b.dataset.benefit);
+    const a = e.target.closest("[data-act]"); if (!a) return;
+    const 할일 = a.dataset.act;
+    if (할일 === "addBenefit") 혜택폼(null);
+    else if (할일 === "addStore") 매장폼(null);
+    else if (할일 === "export") 내보내기();
+    else if (할일 === "import") 불러오기();
+    else if (할일 === "clearBenefits") {
+      if (!confirm(`내가 넣은 혜택 ${데이터.혜택목록.length}개를 모두 지울까요?\n(자동 혜택과 매장은 남아요)`)) return;
+      데이터.혜택목록 = []; 데이터저장(); 새로그리기(); 상태("내가 넣은 혜택을 모두 지웠어요.");
+    } else if (할일 === "reset") {
+      if (!confirm("내가 넣은 매장·혜택, 멤버십 설정, 기록, 사용 횟수를 모두 지울까요?\n(기억한 매장 위치와 화면 밝기 설정은 남아요)")) return;
+      데이터 = 처음데이터(); 데이터저장(); 내정보 = 내정보정리(null); 내정보저장(); 기록쓰기({}); 쓰기(사용키, {}); 쓰기(최근키, []);
+      선택매장 = null; 새로그리기(); 상태("처음 상태로 되돌렸어요."); 처음설정(1);
+    }
+  });
+
+  // ===== 오프라인 저장 (https 에서만) =====
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+  }
+
+  // ===== 시작 =====
+  화면전환("find");
+  if (사전있음 && !내정보.설정완료 && !내정보.통신사 && !내정보.포인트.length) 처음설정(1);
+  else 근처매장찾기();
+</script>
+</body>
+</html>
