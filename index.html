@@ -70,6 +70,18 @@
   .error { background: var(--warn-weak); color: var(--warn); border-radius: 12px; padding: 12px; margin: 12px 0; font-size: 15px; }
   .banner { background: var(--accent-weak); border-radius: 14px; padding: 14px; margin-bottom: 12px; font-size: 15px; }
   .banner button { display: block; margin-top: 10px; border: 0; background: var(--accent); color: #fff; font-size: 15px; font-weight: 700; padding: 10px 16px; border-radius: 10px; cursor: pointer; }
+  /* 첫 화면 위 알림: 기준일 · 백업 · 설치 */
+  .date-line { color: var(--sub); font-size: 13px; margin: 0 0 10px; }
+  .date-line:empty { display: none; }
+  .date-line.old { background: var(--warn-weak); color: var(--warn); border-radius: 10px; padding: 8px 10px; font-weight: 700; }
+  .notice { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+            padding: 8px 6px 8px 12px; margin-bottom: 10px; font-size: 14px; box-shadow: var(--shadow); }
+  .notice.warn { background: var(--warn-weak); border-color: transparent; color: var(--warn); }
+  .notice .t { flex: 1; min-width: 0; }
+  .notice .go { flex: 0 0 auto; border: 0; background: var(--accent); color: #fff; font-size: 14px; font-weight: 700; padding: 7px 11px; border-radius: 9px; cursor: pointer; white-space: nowrap; }
+  .notice .x { flex: 0 0 auto; border: 0; background: none; color: inherit; opacity: .6; font-size: 15px; padding: 6px 8px; min-width: 32px; cursor: pointer; }
+  .adv { margin-top: 26px; }
+  .adv .btn { margin-top: 4px; }
 
   input, select, textarea {
     width: 100%; padding: 12px 14px; font-size: 16px; border: 1px solid var(--line);
@@ -260,6 +272,8 @@
 
   <!-- ===== 화면 1: 혜택 찾기 ===== -->
   <div id="view-find">
+    <div class="date-line" id="dateLine"></div>
+    <div id="noticeBox"></div>
     <div id="setupBanner"></div>
     <div id="leftPanel"></div>
     <div class="search"><span>🔍</span><input type="search" id="search" placeholder="어디서 결제하세요? (예: 파리바게뜨)" autocomplete="off"></div>
@@ -302,9 +316,14 @@
     <p class="note">폰을 바꾸거나 저장한 내용이 지워질 때를 대비해 가끔 내보내 두세요.</p>
     <button class="btn" data-act="export">📤 목록 내보내기</button>
     <button class="btn" data-act="import">📥 목록 불러오기</button>
-    <div class="head"><h2>초기화</h2></div>
-    <button class="btn danger" data-act="clearBenefits">내가 넣은 혜택 모두 지우기</button>
-    <button class="btn danger" data-act="reset">처음 상태로 되돌리기</button>
+    <p class="note" id="lastBackup"></p>
+    <details class="panel adv"><summary>⚙️ 고급 · 지우기와 초기화<span class="more">펼치기/접기</span></summary><div class="inner">
+      <p class="note">지운 내용은 되돌릴 수 없어요. 먼저 위에서 백업해 두세요.</p>
+      <button class="btn danger" data-act="clearBenefits">내가 넣은 혜택만 지우기</button>
+      <p class="note">자동 혜택, 매장, 멤버십 설정은 그대로 남아요.</p>
+      <button class="btn danger" data-act="reset">앱 전체 초기화</button>
+      <p class="note">멤버십 설정, 내가 넣은 매장·혜택, 기록, 사용 횟수가 모두 지워져요.</p>
+    </div></details>
   </div>
 </main>
 
@@ -337,6 +356,10 @@
   const 최근키 = "혜택앱_최근";
   const 위치키 = "혜택앱_기억한위치";
   const 테마키 = "혜택앱_테마";
+  const 백업키 = "혜택앱_마지막백업";
+  const 처음사용키 = "혜택앱_처음사용";
+  const 백업미룸키 = "혜택앱_백업알림미룸";
+  const 설치배너키 = "혜택앱_설치배너닫음";
   const 분류아이콘 = { 카페: "☕", 디저트: "🍦", 베이커리: "🥐", 편의점: "🏪", 피자: "🍕", 치킨: "🍗", 패스트푸드: "🍔",
     외식: "🍽️", 영화관: "🎬", 마트: "🛒", 뷰티: "💄", "놀이·관광": "🎢", 키즈: "🧸", 온라인: "📦", 배달: "🛵" };
   const 아이콘 = (분류) => 분류아이콘[분류] || "🏬";
@@ -364,6 +387,17 @@
     return { 월: `${y}-${String(d.getMonth() + 1).padStart(2, "0")}`, 연: String(y), 주: `${t.getUTCFullYear()}-W${주}` };
   }
   const 남은날 = new Date(지금.getFullYear(), 지금.getMonth() + 1, 0).getDate() - 지금.getDate();
+  // '2026-11-09' 같은 날짜가 오늘부터 며칠 전인지 (모르면 null)
+  function 며칠지남(날짜) {
+    if (!날짜 || !/^\d{4}-\d{2}-\d{2}$/.test(날짜)) return null;
+    const n = Math.round((new Date(오늘()) - new Date(날짜)) / 86400000);
+    return isNaN(n) ? null : n;
+  }
+  function 날짜표시(날짜) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(날짜 || ""); if (!m) return 날짜 || "";
+    return (Number(m[1]) !== 지금.getFullYear() ? m[1] + "년 " : "") + `${Number(m[2])}월 ${Number(m[3])}일`;
+  }
+  if (!읽기(처음사용키)) 쓰기(처음사용키, 오늘());
 
   // ===== 화면 밝기 =====
   const 테마순서 = ["auto", "light", "dark"];
@@ -676,7 +710,48 @@
     else if (내정보.포인트.some((id) => 멤버십찾기(id).등급 && !내정보.포인트등급[id]))
       html = `<div class="banner">등급을 고르지 않은 멤버십이 있어요.<button data-go="member">등급 고르기</button></div>`;
     $("#setupBanner").innerHTML = html;
+    위알림그리기();
   }
+
+  // 첫 화면 맨 위: 혜택 기준일, 백업 알림, 홈 화면 추가 안내
+  function 위알림그리기() {
+    // 1) 기준일 — 45일 넘게 지났으면 눈에 띄게 경고
+    const 사전지남 = 며칠지남(사전_기준일);
+    let 줄 = "", 오래됨 = false;
+    if (사전지남 != null && 사전지남 > 45) {
+      오래됨 = true;
+      줄 = `⚠️ 혜택 정보가 ${사전지남}일 전(${날짜표시(사전_기준일)}) 기준이에요. 그사이 바뀐 혜택이 있을 수 있으니 결제 전 꼭 확인하세요.`;
+    } else {
+      const 조각 = [];
+      if (사전_기준일) 조각.push(`혜택 정보 ${날짜표시(사전_기준일)}`);
+      if (카드_기준일) 조각.push(`카드 ${날짜표시(카드_기준일)}`);
+      if (조각.length) 줄 = `📅 ${조각.join(" · ")} 기준 · 결제 전 해당 앱에서 한 번 더 확인하세요`;
+    }
+    $("#dateLine").textContent = 줄;
+    $("#dateLine").className = "date-line" + (오래됨 ? " old" : "");
+
+    let html = "";
+    // 2) 백업 알림 — 백업한 적 없으면 쓴 지 7일 뒤부터, 했으면 30일 지나면. ✕는 7일 미룸
+    const 마지막 = 읽기(백업키), 미룸 = 며칠지남(읽기(백업미룸키));
+    const 남길것있음 = 내정보.설정완료 || 내정보.통신사 || 내정보.포인트.length || 내정보.카드.length || 데이터.혜택목록.length;
+    if (남길것있음 && !(미룸 != null && 미룸 < 7)) {
+      const 지남 = 며칠지남(마지막), 쓴날 = 며칠지남(읽기(처음사용키)) || 0;
+      if (마지막 ? 지남 != null && 지남 >= 30 : 쓴날 >= 7)
+        html += `<div class="notice warn"><span class="t">💾 ${마지막 ? `마지막 백업 ${지남}일 전` : "아직 백업한 적이 없어요"} · 폰을 바꾸면 설정이 사라져요</span>` +
+          `<button class="go" data-notice="backup">지금 백업</button>` +
+          `<button class="x" data-notice="snooze" aria-label="7일 뒤에 다시 알리기" title="7일 뒤에 다시 알리기">✕</button></div>`;
+    }
+    // 3) 홈 화면 추가 안내 — 앱으로 설치하지 않고 열었을 때만. ✕로 닫으면 다시 안 띄움
+    const 설치됨 = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+    if (!설치됨 && !읽기(설치배너키))
+      html += `<div class="notice"><span class="t">📲 홈 화면에 추가하면 앱처럼 바로 열려요</span>` +
+        `<button class="go" data-notice="install">방법 보기</button>` +
+        `<button class="x" data-notice="installx" aria-label="설치 안내 닫기" title="닫기">✕</button></div>`;
+    $("#noticeBox").innerHTML = html;
+
+    $("#lastBackup").textContent = 마지막 ? `마지막 백업: ${날짜표시(마지막)} (${며칠지남(마지막)}일 전)` : "아직 백업한 적이 없어요.";
+  }
+  function 백업했음() { 쓰기(백업키, 오늘()); 쓰기(백업미룸키, null); 안내띠그리기(); }
 
   function 남은패널그리기() {
     const 목록 = 남은목록();
@@ -1480,9 +1555,9 @@
       <textarea id="b내용" readonly>${글(내용)}</textarea>
       <button class="btn primary" id="b파일">파일로 저장</button><button class="btn" id="b복사">복사하기</button><button class="btn" id="b닫기">닫기</button>`);
     $("#b닫기").onclick = 시트닫기;
-    $("#b파일").onclick = () => { const 주소 = URL.createObjectURL(new Blob([내용], { type: "application/json" })); const a = document.createElement("a"); a.href = 주소; a.download = `모아일_백업_${오늘()}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(주소), 10000); };
+    $("#b파일").onclick = () => { const 주소 = URL.createObjectURL(new Blob([내용], { type: "application/json" })); const a = document.createElement("a"); a.href = 주소; a.download = `모아일_백업_${오늘()}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(주소), 10000); $("#b파일").textContent = "✅ 저장했어요"; 백업했음(); };
     $("#b복사").onclick = () => {
-      const 완료 = () => { $("#b복사").textContent = "✅ 복사했어요"; };
+      const 완료 = () => { $("#b복사").textContent = "✅ 복사했어요 (메모 앱 등에 붙여넣어 두세요)"; 백업했음(); };
       const 옛방식 = () => { const ta = $("#b내용"); ta.removeAttribute("readonly"); ta.select(); try { if (document.execCommand("copy")) 완료(); } catch (e) {} ta.setAttribute("readonly", ""); };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(내용).then(완료, 옛방식); else 옛방식();
     };
@@ -1562,11 +1637,25 @@
   $("#recent").addEventListener("click", (e) => {
     const x = e.target.closest("[data-rm]");
     if (x) { const 이름 = x.dataset.rm; 쓰기(최근키, 최근읽기().filter((n) => n !== 이름)); 매장버튼그리기(); 상태(`'${이름}'을(를) 최근 기록에서 지웠어요.`); return; }
-    const b = e.target.closest("[data-name]"); if (b) 매장선택(b.dataset.name, true);
+    const b = e.target.closest("[data-name]"); if (b) 매장누름(b.dataset.name);
+  });
+  // 고른 매장을 한 번 더 누르면 결과를 닫음
+  function 매장누름(이름) {
+    if (선택매장 !== 이름) return 매장선택(이름, true);
+    선택매장 = null; 매장버튼그리기(); 결과그리기();
+    상태(`'${이름}' 결과를 닫았어요. 다시 누르면 열려요.`);
+  }
+  $("#noticeBox").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-notice]"); if (!b) return;
+    const 할일 = b.dataset.notice;
+    if (할일 === "backup") 내보내기();
+    else if (할일 === "snooze") { 쓰기(백업미룸키, 오늘()); 위알림그리기(); 상태("백업 알림을 7일 뒤에 다시 보여 드릴게요."); }
+    else if (할일 === "install") 설치안내();
+    else if (할일 === "installx") { 쓰기(설치배너키, true); 위알림그리기(); 상태("설치 안내를 닫았어요. [내 멤버십] 맨 위에서 다시 볼 수 있어요."); }
   });
   $("#foldBtn").addEventListener("click", () => { 매장펼침 = !매장펼침; 매장버튼그리기(); });
   $("#cats").addEventListener("click", (e) => { const b = e.target.closest("[data-cat]"); if (b) { 선택분류 = b.dataset.cat; 매장버튼그리기(); } });
-  $("#chips").addEventListener("click", (e) => { const b = e.target.closest(".chip"); if (b) 매장선택(b.dataset.name, true); });
+  $("#chips").addEventListener("click", (e) => { const b = e.target.closest(".chip"); if (b) 매장누름(b.dataset.name); });
   $("#result").addEventListener("click", (e) => {
     if (썼어요처리(e)) return;
     const k = e.target.closest("[data-card]"); if (k) { const [id, n] = k.dataset.card.split("|"); return 카드혜택상세(id, Number(n)); }
@@ -1617,10 +1706,11 @@
     else if (할일 === "export") 내보내기();
     else if (할일 === "import") 불러오기();
     else if (할일 === "clearBenefits") {
-      if (!confirm(`내가 넣은 혜택 ${데이터.혜택목록.length}개를 모두 지울까요?\n(자동 혜택과 매장은 남아요)`)) return;
+      if (!데이터.혜택목록.length) return 상태("내가 넣은 혜택이 없어서 지울 게 없어요.");
+      if (!confirm(`[내가 넣은 혜택만 지우기]\n\n내가 넣은 혜택 ${데이터.혜택목록.length}개를 모두 지울까요?\n자동 혜택, 매장, 멤버십 설정은 남아요.\n지운 뒤에는 되돌릴 수 없어요.`)) return;
       데이터.혜택목록 = []; 데이터저장(); 새로그리기(); 상태("내가 넣은 혜택을 모두 지웠어요.");
     } else if (할일 === "reset") {
-      if (!confirm("내가 넣은 매장·혜택, 멤버십 설정, 기록, 사용 횟수를 모두 지울까요?\n(기억한 매장 위치와 화면 밝기 설정은 남아요)")) return;
+      if (!confirm("⚠️ [앱 전체 초기화]\n\n멤버십 설정, 내가 넣은 매장·혜택, 기록, 사용 횟수를 모두 지울까요?\n지운 뒤에는 되돌릴 수 없어요. 백업해 두지 않았다면 먼저 [목록 내보내기]를 하세요.\n(기억한 매장 위치와 화면 밝기 설정은 남아요)")) return;
       데이터 = 처음데이터(); 데이터저장(); 내정보 = 내정보정리(null); 내정보저장(); 기록쓰기({}); 쓰기(사용키, {}); 쓰기(최근키, []);
       선택매장 = null; 새로그리기(); 상태("처음 상태로 되돌렸어요."); 처음설정(1);
     }
