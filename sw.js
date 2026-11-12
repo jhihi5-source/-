@@ -2,7 +2,7 @@
 // 항상 인터넷에서 새 파일을 먼저 받고, 3초 안에 안 오면 저장해 둔 파일을 씁니다.
 // 그래서 benefits.js 를 고쳐 올리면 다음에 앱을 열 때 바로 반영됩니다.
 const 캐시이름 = "moail-v10";
-const 파일들 = ["./", "./index.html", "./benefits.js", "./cards.js", "./mylist.js", "./manifest.webmanifest",
+const 파일들 = ["./", "./index.html", "./benefits.js", "./partners.js","./cards.js", "./mylist.js", "./manifest.webmanifest",
   "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
