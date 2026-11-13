@@ -3,254 +3,352 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="결제하기 전에 매장만 고르면, 내 통신사·포인트·카드 중 지금 가장 좋은 혜택과 쓰는 순서를 알려줘요.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="모아일">
+<meta property="og:title" content="모아일: 결제 전에 혜택 한 번에 찾기">
+<meta property="og:description" content="매장만 고르면 내 통신사·포인트·카드 중 가장 좋은 혜택과 쓰는 순서를 알려줘요. 설치·가입 없이 바로 써요.">
+<meta property="og:url" content="https://jhihi5-source.github.io/-/">
+<meta property="og:image" content="https://jhihi5-source.github.io/-/icon-512.png">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="모아일">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#2b59f5">
+<meta name="theme-color" content="#f0eff7" id="themeColor">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
 <title>모아일</title>
 <style>
+  /* =====================================================================
+     모아일 디자인 (v11) — "쿠폰 한 장"
+     · 노란 쿠폰(티켓)이 이 앱의 주인공. 고른 것·내 것은 모두 노란색으로 표시
+     · 그 밖의 화면은 조용하게: 연보라 종이 + 남색 잉크 + 흰 카드, 그림자 없음
+     · 손가락으로 누르는 곳은 44px 이상, 글자는 13px 이상
+     ===================================================================== */
   :root {
     color-scheme: light;
-    --bg: #f3f5f9; --card: #ffffff; --card2: #f2f4f8; --text: #161a21; --sub: #667085;
-    --line: #e4e7ec; --accent: #2b59f5; --accent-2: #6f8cff; --accent-weak: #e9eeff;
-    --ok: #0f8a5f; --ok-weak: #e3f6ee; --warn: #b54708; --warn-weak: #fff3e0; --danger: #d92d20; --danger-weak: #fdecea;
-    --shade: rgba(15, 20, 30, .45); --shadow: 0 1px 2px rgba(16,24,40,.05), 0 4px 14px rgba(16,24,40,.06);
-    --hero-a: #2b59f5; --hero-b: #6f8cff;
+    --bg: #f0eff7; --card: #ffffff; --card2: #e6e4f1; --text: #1a1538; --sub: #5b5777;
+    --line: #dad7e8; --accent: #4335e8; --on-accent: #ffffff; --accent-weak: #e6e3ff;
+    --coupon: #ffd84a; --coupon-edge: #e3b40c; --coupon-ink: #1a1538;
+    --ok: #0b7458; --ok-weak: #dbf2e8; --warn: #8f4400; --warn-weak: #ffe9cc; --danger: #be2a1d; --danger-weak: #fbe3e0;
+    --bday: #c2255c; --shade: rgba(26, 21, 56, .52);
+    --num: ui-rounded, "SF Pro Rounded", "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       color-scheme: dark;
-      --bg: #0f1115; --card: #191c22; --card2: #22262e; --text: #eef1f5; --sub: #9aa3af;
-      --line: #2b3039; --accent: #7a9bff; --accent-2: #5b7cff; --accent-weak: #1c2742;
-      --ok: #4cd4a0; --ok-weak: #12301f; --warn: #fbbf4b; --warn-weak: #33260f; --danger: #ff7b72; --danger-weak: #3a1715;
-      --shade: rgba(0,0,0,.6); --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
-      --hero-a: #2a45b0; --hero-b: #4b66d6;
+      --bg: #12102a; --card: #1d1a42; --card2: #2a2658; --text: #f2f0ff; --sub: #aba7cf;
+      --line: #353164; --accent: #a59dff; --on-accent: #12102a; --accent-weak: #2b2769;
+      --ok: #5cd9ad; --ok-weak: #123527; --warn: #ffbc66; --warn-weak: #3b2a10; --danger: #ff8a80; --danger-weak: #3f1a18;
+      --bday: #ff8fb3; --shade: rgba(0, 0, 0, .62);
     }
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --bg: #0f1115; --card: #191c22; --card2: #22262e; --text: #eef1f5; --sub: #9aa3af;
-    --line: #2b3039; --accent: #7a9bff; --accent-2: #5b7cff; --accent-weak: #1c2742;
-    --ok: #4cd4a0; --ok-weak: #12301f; --warn: #fbbf4b; --warn-weak: #33260f; --danger: #ff7b72; --danger-weak: #3a1715;
-    --shade: rgba(0,0,0,.6); --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
-    --hero-a: #2a45b0; --hero-b: #4b66d6;
+    --bg: #12102a; --card: #1d1a42; --card2: #2a2658; --text: #f2f0ff; --sub: #aba7cf;
+    --line: #353164; --accent: #a59dff; --on-accent: #12102a; --accent-weak: #2b2769;
+    --ok: #5cd9ad; --ok-weak: #123527; --warn: #ffbc66; --warn-weak: #3b2a10; --danger: #ff8a80; --danger-weak: #3f1a18;
+    --bday: #ff8fb3; --shade: rgba(0, 0, 0, .62);
   }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   [hidden] { display: none !important; }
   html, body { background: var(--bg); }
   body {
     margin: 0; color: var(--text); line-height: 1.5; -webkit-text-size-adjust: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif;
-    padding: 0 16px calc(32px + env(safe-area-inset-bottom));
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    word-break: keep-all; overflow-wrap: anywhere;
+    padding: 0 16px calc(96px + env(safe-area-inset-bottom));
   }
   body.noscroll { overflow: hidden; }
   main { max-width: 560px; margin: 0 auto; }
   a { color: var(--accent); word-break: break-all; }
-  button { font-family: inherit; }
+  button { font-family: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
+  /* ----- 맨 위: 이름과 밝기 버튼만 ----- */
   .top-bar { position: sticky; top: 0; z-index: 5; background: var(--bg); margin: 0 -16px;
-             padding: calc(env(safe-area-inset-top) + 10px) 16px 10px; }
-  .top-row { max-width: 560px; margin: 0 auto; display: flex; align-items: center; gap: 10px; }
-  .logo { width: 34px; height: 34px; border-radius: 10px; flex: 0 0 34px; display: grid; place-items: center;
-          background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; font-size: 18px; overflow: hidden; }
+             padding: calc(env(safe-area-inset-top) + 8px) 16px 6px; }
+  .top-row { max-width: 560px; margin: 0 auto; display: flex; align-items: center; gap: 9px; }
+  .logo { width: 30px; height: 30px; border-radius: 9px; flex: 0 0 30px; overflow: hidden; background: var(--card2); }
   .logo img { width: 100%; height: 100%; display: block; object-fit: cover; }
-  h1 { font-size: 20px; margin: 0; flex: 1; letter-spacing: -0.3px; }
-  .icon-btn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--card);
-              color: var(--text); font-size: 19px; cursor: pointer; display: grid; place-items: center; box-shadow: var(--shadow); }
-  .tabs { max-width: 560px; margin: 10px auto 0; display: flex; gap: 4px; background: var(--card); border: 1px solid var(--line);
-          border-radius: 14px; padding: 4px; box-shadow: var(--shadow); }
-  .tabs button { flex: 1; border: 0; background: none; color: var(--sub); font-size: 15px; padding: 9px 4px; border-radius: 10px; cursor: pointer; }
-  .tabs button.on { background: var(--accent); color: #fff; font-weight: 700; }
+  h1 { font-size: 21px; font-weight: 800; margin: 0; flex: 1; letter-spacing: -0.5px; }
+  .icon-btn { width: 44px; height: 44px; border-radius: 50%; border: 0; background: none;
+              font-size: 20px; cursor: pointer; display: grid; place-items: center; margin-right: -8px; }
 
-  .status { color: var(--sub); font-size: 14px; margin: 10px 0; min-height: 21px; }
-  .error { background: var(--warn-weak); color: var(--warn); border-radius: 12px; padding: 12px; margin: 12px 0; font-size: 15px; }
-  .banner { background: var(--accent-weak); border-radius: 14px; padding: 14px; margin-bottom: 12px; font-size: 15px; }
-  .banner button { display: block; margin-top: 10px; border: 0; background: var(--accent); color: #fff; font-size: 15px; font-weight: 700; padding: 10px 16px; border-radius: 10px; cursor: pointer; }
-  /* 첫 화면 위 알림: 기준일 · 백업 · 설치 */
-  .date-line { color: var(--sub); font-size: 13px; margin: 0 0 10px; }
+  /* ----- 맨 아래: 화면 바꾸기 (엄지가 닿는 곳) ----- */
+  .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; display: flex; justify-content: center; gap: 4px;
+          background: var(--card); border-top: 1px solid var(--line);
+          padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); }
+  .tabs button { flex: 1; max-width: 180px; min-height: 54px; border: 0; background: none; color: var(--sub);
+                 font-size: 13px; font-weight: 600; cursor: pointer; display: grid; justify-items: center; align-content: center; gap: 3px; }
+  .tabs .ic { width: 58px; height: 28px; border-radius: 14px; display: grid; place-items: center; }
+  .tabs svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .tabs button.on { color: var(--text); font-weight: 800; }
+  .tabs button.on .ic { background: var(--coupon); color: var(--coupon-ink); }
+
+  /* ----- 알림 한 줄 (잠깐 떴다 사라짐) ----- */
+  .status { position: fixed; left: 16px; right: 16px; bottom: calc(82px + env(safe-area-inset-bottom)); z-index: 11;
+            max-width: 528px; margin: 0 auto; background: var(--text); color: var(--bg);
+            padding: 12px 16px; border-radius: 14px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .status:empty { display: none; }
+  body.noscroll .status { bottom: auto; top: calc(env(safe-area-inset-top) + 10px); }
+
+  .error { background: var(--warn-weak); color: var(--warn); border-radius: 14px; padding: 12px 14px; margin: 12px 0; font-size: 15px; font-weight: 600; }
+  .banner { background: var(--text); color: var(--bg); border-radius: 18px; padding: 16px; margin: 8px 0 4px; font-size: 16px; font-weight: 600; }
+  .banner button { display: block; margin-top: 12px; border: 0; background: var(--coupon); color: var(--coupon-ink);
+                   font-size: 16px; font-weight: 800; min-height: 48px; padding: 0 18px; border-radius: 12px; cursor: pointer; }
+
+  /* ----- 화면 1: 혜택 찾기 ----- */
+  #view-find { display: flex; flex-direction: column; }
+  .ask { font-size: 27px; font-weight: 800; letter-spacing: -0.9px; line-height: 1.25; margin: 14px 0 12px; }
+  .ask label { display: inline; font: inherit; color: inherit; margin: 0; }
+  .date-line { order: 99; color: var(--sub); font-size: 13px; margin: 18px 0 0; text-align: center; }
   .date-line:empty { display: none; }
-  .date-line.old { background: var(--warn-weak); color: var(--warn); border-radius: 10px; padding: 8px 10px; font-weight: 700; }
-  .notice { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 12px;
-            padding: 8px 6px 8px 12px; margin-bottom: 10px; font-size: 14px; box-shadow: var(--shadow); }
-  .notice.warn { background: var(--warn-weak); border-color: transparent; color: var(--warn); }
-  .notice .t { flex: 1; min-width: 0; }
-  .notice .go { flex: 0 0 auto; border: 0; background: var(--accent); color: #fff; font-size: 14px; font-weight: 700; padding: 7px 11px; border-radius: 9px; cursor: pointer; white-space: nowrap; }
-  .notice .x { flex: 0 0 auto; border: 0; background: none; color: inherit; opacity: .6; font-size: 15px; padding: 6px 8px; min-width: 32px; cursor: pointer; }
-  .adv { margin-top: 26px; }
-  .adv .btn { margin-top: 4px; }
+  .date-line.old { order: -1; text-align: left; background: var(--warn-weak); color: var(--warn); border-radius: 14px;
+                   padding: 12px 14px; font-size: 15px; font-weight: 700; margin: 8px 0 0; }
 
   input, select, textarea {
-    width: 100%; padding: 12px 14px; font-size: 16px; border: 1px solid var(--line);
-    border-radius: 12px; background: var(--card); color: var(--text); font-family: inherit;
+    width: 100%; min-height: 52px; padding: 12px 14px; font-size: 16px; border: 1.5px solid var(--line);
+    border-radius: 14px; background: var(--card); color: var(--text); font-family: inherit;
   }
+  input:focus, select:focus, textarea:focus { outline: 0; border-color: var(--accent); }
   textarea { min-height: 140px; font-size: 13px; font-family: ui-monospace, Consolas, monospace; }
   .search { position: relative; }
-  .search input { padding-left: 40px; box-shadow: var(--shadow); }
-  .search span { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; opacity: .6; }
+  .search input { min-height: 58px; padding-left: 50px; font-size: 18px; font-weight: 600; border: 2px solid var(--text); border-radius: 16px; }
+  .search input::placeholder { color: var(--sub); font-weight: 500; }
+  .search input:focus { border-color: var(--accent); }
+  .search svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px;
+                fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; pointer-events: none; }
 
-  .hscroll { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 10px 16px 2px; }
+  .hscroll { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 12px 16px 0; }
   .hscroll::-webkit-scrollbar { display: none; }
-  .cat-chip { flex: 0 0 auto; border: 0; background: var(--card2); color: var(--sub); padding: 7px 12px; border-radius: 999px; font-size: 14px; cursor: pointer; }
-  .cat-chip.on { background: var(--text); color: var(--bg); font-weight: 700; }
-  .recent-label { flex: 0 0 auto; color: var(--sub); font-size: 13px; align-self: center; }
-  /* 최근 고른 매장 (✕로 기록에서 지우기) + 전체 매장 펼치기/접기 */
-  .recent { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 10px 0 2px; }
+  .cat-chip { flex: 0 0 auto; min-height: 40px; border: 0; border-bottom: 3px solid transparent; background: none; color: var(--sub);
+              padding: 0 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .cat-chip.on { color: var(--text); font-weight: 800; border-bottom-color: var(--coupon); }
+  .recent-label { flex: 0 0 auto; color: var(--sub); font-size: 13px; font-weight: 700; align-self: center; margin-right: 2px; }
+  .recent { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0 0; }
   .recent:empty { display: none; }
-  .rchip { display: inline-flex; align-items: center; background: var(--card2); border-radius: 999px; }
-  .rchip button { border: 0; background: none; color: var(--text); font-size: 14px; cursor: pointer; padding: 7px 2px 7px 12px; }
-  .rchip .rx { color: var(--sub); font-size: 13px; padding: 7px 11px 7px 7px; min-width: 32px; }
-  .rchip.on { background: var(--text); }
-  .rchip.on button { color: var(--bg); font-weight: 700; }
-  .rchip.on .rx { color: var(--bg); opacity: .7; }
-  .fold-btn { display: block; width: 100%; margin: 10px 0 0; border: 1px dashed var(--line); background: none; color: var(--sub);
-              padding: 10px; border-radius: 12px; font-size: 14px; cursor: pointer; }
+  .recent .small { text-align: left; margin: 0; }
+  .rchip { display: inline-flex; align-items: stretch; min-height: 44px; background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; }
+  .rchip button { border: 0; background: none; font-size: 15px; font-weight: 600; cursor: pointer; padding: 0 2px 0 13px; }
+  .rchip .rx { color: var(--sub); font-size: 13px; padding: 0 12px 0 8px; min-width: 40px; }
+  .rchip.on { background: var(--coupon); border-color: var(--coupon-ink); color: var(--coupon-ink); }
+  .rchip.on button { font-weight: 800; }
+  .rchip.on .rx { color: var(--coupon-ink); opacity: .7; }
+  .fold-btn { display: block; width: 100%; min-height: 48px; margin: 12px 0 0; border: 0; background: var(--card2); color: var(--text);
+              border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
   .fold-btn[hidden] { display: none; }
 
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
-  .chip { border: 1px solid var(--line); background: var(--card); color: var(--text); padding: 8px 12px; border-radius: 999px; font-size: 15px; cursor: pointer; }
-  .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .chip .n { opacity: .65; font-size: 13px; margin-left: 3px; }
+  .chip { display: inline-flex; align-items: center; gap: 5px; min-height: 42px; border: 1.5px solid var(--line); background: var(--card);
+          padding: 0 13px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: left; }
+  .chip.on { background: var(--coupon); border-color: var(--coupon-ink); color: var(--coupon-ink); font-weight: 800; }
+  .chip .n { font-family: var(--num); font-size: 13px; font-weight: 800; color: var(--accent); }
+  .chip.on .n { color: var(--coupon-ink); }
+  .chip.sm { min-height: 44px; font-size: 14px; padding: 0 12px; }
 
   h2 { font-size: 20px; margin: 0; }
-  h3 { font-size: 18px; margin: 0 0 12px; }
-  .head { display: flex; justify-content: space-between; align-items: center; margin: 26px 0 8px; }
-  .head h2 { font-size: 17px; }
-  .head button { border: 0; background: var(--accent-weak); color: var(--accent); font-size: 14px; font-weight: 700; padding: 7px 12px; border-radius: 10px; cursor: pointer; }
+  h3 { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; margin: 0 0 12px; }
+  .head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 30px 0 8px; }
+  .head h2 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
+  .head button { flex: 0 0 auto; min-height: 44px; border: 0; background: var(--text); color: var(--bg); font-size: 14px; font-weight: 800;
+                 padding: 0 15px; border-radius: 12px; cursor: pointer; }
 
-  /* 이번 달 남은 혜택 */
-  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; margin-bottom: 12px; box-shadow: var(--shadow); overflow: hidden; }
-  .panel summary { list-style: none; cursor: pointer; padding: 13px 14px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  /* ----- 횟수 정해진 혜택 = 도장판 ----- */
+  .panel { background: var(--card); border-radius: 18px; margin: 18px 0 0; overflow: hidden; }
+  .panel summary { list-style: none; cursor: pointer; min-height: 56px; padding: 6px 16px; font-size: 16px; font-weight: 800;
+                   display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .panel summary::-webkit-details-marker { display: none; }
-  .panel summary .more { color: var(--sub); font-size: 13px; font-weight: 500; white-space: nowrap; }
-  .panel .inner { padding: 0 14px 12px; }
-  .left-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); }
-  .left-row .t { flex: 1; min-width: 0; font-size: 14px; }
-  .left-row .t b { display: block; font-size: 14px; }
+  .panel summary::after { content: ""; flex: 0 0 auto; width: 9px; height: 9px; margin: -4px 4px 0 0;
+                          border-right: 2.5px solid var(--sub); border-bottom: 2.5px solid var(--sub); transform: rotate(45deg); transition: transform .15s; }
+  .panel[open] summary::after { transform: rotate(-135deg); margin-top: 4px; }
+  .panel summary .more { display: none; }
+  .panel .inner { padding: 0 16px 14px; }
+  .left-row { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .left-row .t { flex: 1; min-width: 0; font-size: 15px; }
+  .left-row .t b { display: block; font-size: 15px; margin-bottom: 3px; }
   .left-row .t span { color: var(--sub); font-size: 13px; }
-  .left-row.done .t { opacity: .5; }
-  .mini { border: 0; border-radius: 10px; padding: 7px 10px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-  .mini.use { background: var(--accent); color: #fff; }
-  .mini.undo { background: var(--card2); color: var(--sub); }
-  .month-end { background: var(--warn-weak); color: var(--warn); border-radius: 10px; padding: 8px 10px; font-size: 13px; margin-bottom: 6px; }
+  .left-row.done .t { opacity: .55; }
+  .stamps { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 5px; margin-right: 12px; vertical-align: middle; }
+  .stamps .st-l { font-size: 13px; color: var(--sub); margin-right: 1px; }
+  .stamps i { width: 14px; height: 14px; border-radius: 50%; border: 1.5px dashed var(--sub); opacity: .75; }
+  .stamps i.on { border: 0; background: var(--accent); opacity: 1; }
+  .stamps i.new { animation: stamp .38s cubic-bezier(.2, 1.6, .4, 1); }
+  @keyframes stamp { from { transform: scale(2.4); opacity: 0; } to { transform: none; opacity: 1; } }
+  .mini { flex: 0 0 auto; min-width: 44px; min-height: 44px; border: 0; border-radius: 12px; padding: 0 14px; font-size: 14px; font-weight: 800; cursor: pointer; white-space: nowrap; }
+  .mini.use { background: none; box-shadow: inset 0 0 0 2px var(--text); }
+  .mini.undo { background: var(--card2); color: var(--text); font-size: 17px; padding: 0; }
+  .month-end { background: var(--warn-weak); color: var(--warn); border-radius: 12px; padding: 10px 12px; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
 
-  /* 매장 결과 */
-  .store-card { background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); color: #fff; border-radius: 18px; padding: 16px; margin: 18px 0 12px; box-shadow: var(--shadow); }
-  .store-card .s-top { display: flex; align-items: center; gap: 12px; }
-  .store-card .s-icon { width: 46px; height: 46px; border-radius: 14px; background: rgba(255,255,255,.2); display: grid; place-items: center; font-size: 24px; flex: 0 0 46px; }
-  .store-card h2 { font-size: 21px; }
-  .store-card .s-cat { opacity: .85; font-size: 14px; }
-  .store-card .s-sum { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-  .store-card .pill { background: rgba(255,255,255,.18); border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 600; }
+  /* ----- 쿠폰 한 장: 고른 매장에서 지금 쓸 혜택 ----- */
+  .ticket { position: relative; background: var(--coupon); color: var(--coupon-ink); border-radius: 20px; margin: 20px 0 26px;
+            box-shadow: 0 8px 0 -3px var(--coupon-edge); }
+  .ticket.fresh { animation: print .32s cubic-bezier(.2, .8, .3, 1); transform-origin: top center; }
+  @keyframes print { from { transform: translateY(-14px) scaleY(.92); opacity: 0; } to { transform: none; opacity: 1; } }
+  .t-top { padding: 18px 18px 16px; }
+  .t-store { display: flex; align-items: center; gap: 11px; }
+  .t-icon { flex: 0 0 42px; width: 42px; height: 42px; border-radius: 13px; background: rgba(255, 255, 255, .6); display: grid; place-items: center; font-size: 23px; }
+  .t-name { min-width: 0; }
+  .t-name h2 { font-size: 21px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.25; }
+  .t-name p { margin: 0; font-size: 14px; font-weight: 600; opacity: .7; }
+  .t-deal { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin-top: 18px; }
+  .t-what { min-width: 0; }
+  .t-best { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -0.4px; line-height: 1.32; }
+  .t-with { margin: 4px 0 0; font-size: 14px; font-weight: 700; opacity: .72; }
+  .t-rate { flex: 0 0 auto; text-align: right; line-height: .9; }
+  .t-rate b { font-family: var(--num); font-size: 62px; font-weight: 900; letter-spacing: -3px; }
+  .t-rate b span { font-size: 30px; letter-spacing: 0; margin-left: 2px; }
+  .t-rate small { display: block; font-size: 14px; font-weight: 800; margin-top: 7px; }
+  .t-rate.word b { font-size: 30px; letter-spacing: -1px; line-height: 1.2; }
+  .tear { position: relative; height: 0; margin: 0 16px; border-top: 2px dashed rgba(26, 21, 56, .42); }
+  .tear::before, .tear::after { content: ""; position: absolute; top: -12px; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); }
+  .tear::before { left: -27px; }
+  .tear::after { right: -27px; }
+  .t-stub { padding: 14px 18px 18px; }
+  .t-how { font-size: 14px; font-weight: 800; letter-spacing: 0; margin: 0 0 2px; opacity: .72; }
+  .step { display: flex; gap: 12px; align-items: flex-start; padding: 9px 0; font-size: 16px; line-height: 1.42; }
+  .step .no { flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--coupon-ink); color: var(--coupon);
+              display: grid; place-items: center; font-family: var(--num); font-size: 14px; font-weight: 800; }
+  .step.pre .no { background: none; font-size: 19px; }
+  .step.done { opacity: .72; }
+  .step.done .no { background: none; color: var(--coupon-ink); box-shadow: inset 0 0 0 2px var(--coupon-ink); }
+  .ticket .tag { background: none; box-shadow: inset 0 0 0 1.5px currentColor; color: inherit; }
+  .note2 { font-size: 14px; line-height: 1.45; padding: 10px 12px; border-radius: 12px; margin-top: 8px; background: rgba(26, 21, 56, .09); }
+  .note2.caution { background: var(--coupon-ink); color: var(--coupon); font-weight: 700; }
+  .ticket .btn.primary { background: var(--coupon-ink); border-color: var(--coupon-ink); color: var(--coupon); margin-top: 12px; }
+  .ticket.void { background: var(--card2); color: var(--text); box-shadow: none; }
+  .t-void { margin: 14px 0 0; font-size: 15px; font-weight: 600; }
+  .ticket.blank { background: none; box-shadow: none; border: 2px dashed var(--line); color: var(--sub); text-align: center;
+                  padding: 30px 18px; font-size: 15px; font-weight: 600; margin: 20px 0 12px; }
 
-  .doit { background: var(--card); border: 2px solid var(--accent); border-radius: 16px; padding: 14px; margin-bottom: 14px; box-shadow: var(--shadow); }
-  .doit h4 { margin: 0 0 4px; font-size: 16px; }
-  .doit .best { font-size: 15px; margin-bottom: 8px; }
-  .doit .best b { color: var(--accent); }
-  .step { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px dashed var(--line); font-size: 15px; }
-  .step .no { flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: 800; }
-  .step.pre .no { background: var(--warn); }
-  .step.done .no { background: var(--ok); }
-  .doit .note2 { font-size: 13px; padding: 8px 10px; border-radius: 10px; margin-top: 8px; }
-  .note2.caution { background: var(--warn-weak); color: var(--warn); }
-  .note2.info { background: var(--card2); color: var(--sub); }
-  .note2.ok { background: var(--ok-weak); color: var(--ok); }
-
-  .group { background: var(--card); border: 1px solid var(--line); border-radius: 16px; margin-bottom: 12px; overflow: hidden; box-shadow: var(--shadow); }
-  .ghead { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px 0; gap: 8px; }
+  /* ----- 멤버십별 혜택 목록 ----- */
+  .sec-title { font-size: 15px; font-weight: 800; color: var(--sub); margin: 0 2px 10px; }
+  .group { background: var(--card); border-radius: 18px; margin-bottom: 12px; overflow: hidden; }
+  .ghead { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 16px 0; gap: 8px; }
   .gname { font-weight: 800; font-size: 16px; }
   .gsub { color: var(--sub); font-size: 13px; white-space: nowrap; }
-  .bf { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; cursor: pointer; }
-  .bf + .bf, .extra-label + .bf { border-top: 1px dashed var(--line); }
+  .bf { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px 16px; cursor: pointer; }
+  .bf + .bf { border-top: 1px solid var(--line); }
   .bf.used { opacity: .55; }
-  .extra-label { font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-weak); padding: 5px 14px; }
-  .rate { flex: 0 0 62px; text-align: center; font-weight: 800; font-size: 19px; color: var(--accent); background: var(--accent-weak); border-radius: 12px; padding: 8px 4px; }
-  .rate small { display: block; font-size: 11px; font-weight: 600; }
-  .rate.none { color: var(--sub); background: var(--card2); font-size: 13px; padding: 15px 4px; }
-  .rate.small-rate { flex-basis: 52px; font-size: 16px; padding: 6px 2px; }
+  .extra-label { font-size: 13px; font-weight: 800; color: var(--sub); padding: 12px 16px 0; border-top: 1px solid var(--line); }
+  .rate { flex: 0 0 58px; font-family: var(--num); font-weight: 900; font-size: 25px; letter-spacing: -1px; line-height: 1.1; }
+  .rate small { display: block; font-family: inherit; font-size: 13px; font-weight: 700; letter-spacing: 0; color: var(--sub); margin-top: 3px; }
+  .rate.none { font-size: 15px; letter-spacing: 0; color: var(--sub); padding-top: 3px; }
+  .rate.small-rate { font-size: 20px; }
+  .rate.none.small-rate { font-size: 14px; }
   .body { flex: 1; min-width: 0; }
-  .desc { font-weight: 600; }
-  .tags { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-left: 4px; vertical-align: middle; }
-  .tag { font-size: 11px; border: 1px solid var(--line); border-radius: 6px; padding: 0 6px; color: var(--sub); font-weight: 500; }
-  .tag.warn { border-color: var(--warn); color: var(--warn); }
-  .tag.mine { border-color: var(--ok); color: var(--ok); }
-  .tag.bday { border-color: #e0527a; color: #e0527a; }
-  .cond { color: var(--sub); font-size: 13px; margin-top: 2px; }
-  .how { display: inline-block; font-size: 13px; font-weight: 700; margin-top: 6px; padding: 4px 8px; border-radius: 8px; background: var(--accent-weak); color: var(--accent); }
-  .line { font-size: 13px; margin-top: 6px; padding: 6px 8px; border-radius: 8px; }
-  .line.pre { background: var(--warn-weak); color: var(--warn); font-weight: 600; }
-  .line.no { background: var(--danger-weak); color: var(--danger); }
-  .line.mix { background: var(--card2); color: var(--sub); }
-  .line.tip { background: var(--ok-weak); color: var(--ok); }
-  .line.rec { background: var(--warn-weak); color: var(--warn); }
-  .line.cnt { background: var(--card2); color: var(--text); display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+  .desc { font-weight: 700; font-size: 16px; line-height: 1.4; }
+  .tags { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-left: 6px; vertical-align: middle; }
+  .tag { font-size: 13px; line-height: 1.5; border-radius: 6px; padding: 0 7px; background: var(--card2); color: var(--sub); font-weight: 600; white-space: nowrap; }
+  .tag.warn { background: var(--warn-weak); color: var(--warn); }
+  .tag.mine { background: var(--ok-weak); color: var(--ok); }
+  .tag.bday { background: none; box-shadow: inset 0 0 0 1.5px var(--bday); color: var(--bday); }
+  .cond { color: var(--sub); font-size: 14px; margin-top: 3px; }
+  .how { font-size: 14px; font-weight: 700; margin-top: 9px; padding: 9px 12px; border-radius: 11px; background: var(--accent-weak); color: var(--accent); }
+  :root[data-theme="dark"] .how { color: var(--text); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .how { color: var(--text); } }
+  .line { font-size: 14px; line-height: 1.45; margin-top: 7px; color: var(--sub); }
+  .line.pre { color: var(--warn); font-weight: 700; }
+  .line.no { color: var(--danger); }
+  .line.tip { color: var(--ok); }
+  .line.rec { color: var(--warn); font-weight: 600; }
+  .line.cnt { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 11px;
+              padding: 6px 6px 6px 12px; border-radius: 13px; background: var(--card2); color: var(--text); }
+  .line.cnt .cnt-t { min-width: 0; }
+  .line.cnt .cnt-n { display: block; font-size: 13px; color: var(--sub); margin-bottom: 2px; }
 
-  .combo { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
-  .combo h4 { margin: 0 0 8px; font-size: 15px; }
-  .combo .c { font-size: 14px; padding: 8px 10px; border-radius: 10px; margin-top: 6px; }
-  .combo .c.ok { background: var(--ok-weak); color: var(--ok); }
-  .combo .c.caution { background: var(--warn-weak); color: var(--warn); }
-  .combo .c.maybe { background: var(--card2); color: var(--sub); }
+  .combo { background: var(--card); border-radius: 18px; padding: 14px 16px; margin-bottom: 12px; }
+  .combo h4 { margin: 0 0 4px; font-size: 16px; font-weight: 800; }
+  .combo .c { font-size: 14px; line-height: 1.45; padding: 8px 0 0 12px; margin-top: 8px; border-left: 3px solid var(--line); color: var(--sub); }
+  .combo .c.ok { border-left-color: var(--ok); color: var(--ok); }
+  .combo .c.caution { border-left-color: var(--warn); color: var(--warn); font-weight: 600; }
 
-  .empty { color: var(--sub); text-align: center; padding: 24px 0; }
-  .rows { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
-  .row { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--text); padding: 12px 14px; font-size: 15px; cursor: pointer; }
+  .empty { color: var(--sub); text-align: center; padding: 22px 12px; font-size: 15px; }
+  .rows { background: var(--card); border-radius: 18px; overflow: hidden; }
+  .row { display: block; width: 100%; min-height: 56px; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: none;
+         padding: 12px 16px; font-size: 16px; cursor: pointer; }
   .row:last-child { border-bottom: 0; }
   .row .main { font-weight: 700; }
-  .row .sub { display: block; color: var(--sub); font-size: 13px; }
-  .btn { display: block; width: 100%; padding: 13px; font-size: 15px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); color: var(--text); margin-top: 10px; cursor: pointer; }
-  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+  .row .sub { display: block; color: var(--sub); font-size: 14px; margin-top: 1px; }
+  .rows .error { margin: 12px; }
+  .rows .note { margin: 0 14px 4px; }
+  .rows > .btn { width: auto; margin: 8px 12px; display: block; width: calc(100% - 24px); }
+  .rows > .btn:last-child { margin-bottom: 12px; }
+  .btn { display: block; width: 100%; min-height: 52px; padding: 10px 14px; font-size: 16px; font-weight: 700; border-radius: 14px;
+         border: 1.5px solid var(--line); background: var(--card); margin-top: 10px; cursor: pointer; }
+  .btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 800; }
   .btn.danger { color: var(--danger); }
-  .btn.small { padding: 9px; font-size: 14px; }
-  .small, .note { color: var(--sub); font-size: 13px; }
-  .small { text-align: center; margin-top: 8px; }
+  .btn.small { min-height: 46px; font-size: 15px; }
+  .small, .note { color: var(--sub); font-size: 14px; }
+  .small { text-align: center; margin-top: 10px; }
   .note { margin: 0 0 12px; }
-  .box { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin-top: 18px; font-size: 14px; box-shadow: var(--shadow); }
-  .box p { margin: 0 0 6px; }
+  .box { background: var(--card); border-radius: 18px; padding: 16px; margin-top: 18px; font-size: 14px; }
+  .box p { margin: 0 0 7px; }
   .box p:last-child { margin: 0; }
-  .subgrade { margin: -2px 0 8px 10px; padding-left: 10px; border-left: 3px solid var(--accent-weak); }
+  .box .only-here { color: var(--text); font-weight: 600; padding-top: 10px; margin-top: 10px; border-top: 1px solid var(--line); }
+  .subgrade { margin: 0 0 8px 2px; padding-left: 12px; border-left: 3px solid var(--coupon); }
   .dl { margin: 0 0 12px; }
-  .dl div { margin-bottom: 10px; }
-  .dl b { display: block; font-size: 13px; color: var(--sub); font-weight: 600; }
+  .dl div { margin-bottom: 12px; font-size: 16px; }
+  .dl b { display: block; font-size: 13px; color: var(--sub); font-weight: 700; margin-bottom: 1px; }
   .recs { margin: 8px 0; }
-  .rec-row { display: flex; gap: 8px; align-items: center; background: var(--warn-weak); color: var(--warn); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; font-size: 14px; }
+  .rec-row { display: flex; gap: 8px; align-items: center; background: var(--warn-weak); color: var(--warn); border-radius: 12px; padding: 4px 4px 4px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 600; }
   .rec-row span { flex: 1; }
-  .rec-row button { border: 0; background: none; color: var(--warn); font-size: 13px; text-decoration: underline; cursor: pointer; }
+  .rec-row button { min-width: 56px; min-height: 44px; border: 0; background: none; color: var(--warn); font-size: 14px; font-weight: 700; text-decoration: underline; cursor: pointer; }
 
-  /* 처음 설정 & 큰 타일 */
-  .wiz-step { color: var(--accent); font-weight: 800; font-size: 13px; margin-bottom: 4px; }
-  .wiz-q { font-size: 22px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.4px; }
-  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
-  .tile { border: 2px solid var(--line); background: var(--card); color: var(--text); border-radius: 16px; padding: 16px 12px; font-size: 17px; font-weight: 800; cursor: pointer; text-align: left; min-height: 70px; }
-  .tile small { display: block; font-size: 12px; font-weight: 500; color: var(--sub); margin-top: 2px; }
-  .tile.on { border-color: var(--accent); background: var(--accent-weak); }
-  .tile.on::after { content: " ✓"; color: var(--accent); }
+  /* 첫 화면 아래 알림: 백업 · 설치 */
+  .notice { display: flex; align-items: center; gap: 6px; background: var(--card); border-radius: 16px; padding: 6px 4px 6px 14px; margin-top: 12px; font-size: 14px; font-weight: 600; }
+  .notice.warn { background: var(--warn-weak); color: var(--warn); }
+  .notice .t { flex: 1; min-width: 0; }
+  .notice .go { flex: 0 0 auto; min-height: 44px; border: 0; background: var(--text); color: var(--bg); font-size: 14px; font-weight: 800; padding: 0 14px; border-radius: 12px; cursor: pointer; white-space: nowrap; }
+  .notice .x { flex: 0 0 auto; width: 44px; height: 44px; border: 0; background: none; color: inherit; opacity: .65; font-size: 16px; cursor: pointer; }
+  #findBtn { margin-top: 14px; }
+  .adv { margin-top: 30px; }
+  .adv .btn { margin-top: 4px; }
+
+  /* ----- 처음 설정 & 큰 타일 ----- */
+  .wiz-step { display: inline-block; font-family: var(--num); font-weight: 800; font-size: 14px; background: var(--coupon); color: var(--coupon-ink); border-radius: 8px; padding: 2px 10px; margin-bottom: 10px; }
+  .wiz-q { font-size: 26px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.8px; line-height: 1.25; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .tile { position: relative; border: 2px solid var(--line); background: var(--card); border-radius: 16px; padding: 14px 34px 14px 14px;
+          font-size: 17px; font-weight: 800; cursor: pointer; text-align: left; min-height: 74px; }
+  .tile small { display: block; font-size: 13px; font-weight: 500; color: var(--sub); margin-top: 3px; }
+  .tile.on { border-color: var(--coupon-ink); background: var(--coupon); color: var(--coupon-ink); }
+  .tile.on small { color: var(--coupon-ink); opacity: .75; }
+  .tile.on::after { content: "✓"; position: absolute; top: 12px; right: 12px; font-size: 17px; font-weight: 900; }
   .tile.wide { grid-column: 1 / -1; }
   .months { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0; }
-  .months button { padding: 12px 0; font-size: 16px; font-weight: 700; border-radius: 12px; border: 2px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; }
-  .months button.on { border-color: var(--accent); background: var(--accent-weak); color: var(--accent); }
+  .months button { min-height: 48px; font-size: 16px; font-weight: 700; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card); cursor: pointer; }
+  .months button.on { border-color: var(--coupon-ink); background: var(--coupon); color: var(--coupon-ink); font-weight: 800; }
   .wiz-nav { display: flex; gap: 8px; margin-top: 8px; }
   .wiz-nav .btn { margin-top: 0; }
 
-  /* 혜택 추가 폼 */
-  .fsec { margin: 16px 0; }
-  .fsec > b { display: block; font-size: 15px; margin-bottom: 6px; }
-  .fsel { background: var(--accent-weak); color: var(--accent); border-radius: 10px; padding: 8px 10px; font-weight: 700; margin-bottom: 8px; }
-  .pick { max-height: 180px; overflow-y: auto; }
-  .chip.sm { padding: 6px 10px; font-size: 14px; }
+  /* ----- 혜택 추가 폼 ----- */
+  .fsec { margin: 18px 0; }
+  .fsec > b { display: block; font-size: 16px; margin-bottom: 6px; }
+  .fsel { background: var(--coupon); color: var(--coupon-ink); border-radius: 12px; padding: 10px 12px; font-weight: 800; margin-bottom: 8px; }
+  .pick { max-height: 200px; overflow-y: auto; }
 
-  .steps-ol { margin: 8px 0 12px; padding-left: 20px; }
-  .steps-ol li { margin-bottom: 6px; }
+  .steps-ol { margin: 8px 0 12px; padding-left: 22px; font-size: 15px; }
+  .steps-ol li { margin-bottom: 7px; }
 
+  /* ----- 아래에서 올라오는 창 ----- */
   .sheet { position: fixed; inset: 0; background: var(--shade); display: flex; align-items: flex-end; justify-content: center; z-index: 10; }
-  .sheet-inner { background: var(--bg); width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
-                 border-radius: 20px 20px 0 0; padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); }
+  .sheet-inner { background: var(--bg); width: 100%; max-width: 560px; max-height: 92vh; max-height: 92dvh; overflow-y: auto;
+                 border-radius: 24px 24px 0 0; padding: 10px 18px calc(22px + env(safe-area-inset-bottom)); animation: rise .24s cubic-bezier(.2, .8, .3, 1); }
+  .sheet-inner::before { content: ""; display: block; width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 16px; }
+  @keyframes rise { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
   label { display: block; font-size: 14px; color: var(--sub); margin-bottom: 12px; }
   label input, label select { margin-top: 4px; }
-  .formmsg { color: var(--danger); font-size: 14px; min-height: 0; }
+  .formmsg { color: var(--danger); font-size: 14px; font-weight: 600; min-height: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ticket.fresh, .sheet-inner, .stamps i.new { animation: none; }
+    .panel summary::after { transition: none; }
+  }
 </style>
 </head>
 <body>
@@ -260,43 +358,38 @@
     <h1>모아일</h1>
     <button class="icon-btn" id="themeBtn" type="button" aria-label="화면 밝기 바꾸기">🌓</button>
   </div>
-  <nav class="tabs">
-    <button data-view="find" class="on">혜택 찾기</button>
-    <button data-view="member">내 멤버십</button>
-    <button data-view="manage">직접 관리</button>
-  </nav>
 </div>
 <main>
-  <div class="status" id="status"></div>
   <div id="errorBox"></div>
 
   <!-- ===== 화면 1: 혜택 찾기 ===== -->
   <div id="view-find">
     <div class="date-line" id="dateLine"></div>
-    <div id="noticeBox"></div>
     <div id="setupBanner"></div>
-    <div id="leftPanel"></div>
-    <div class="search"><span>🔍</span><input type="search" id="search" placeholder="어디서 결제하세요? (예: 파리바게뜨)" autocomplete="off"></div>
+    <h2 class="ask"><label for="search">어디서 결제하세요?</label></h2>
+    <div class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg><input type="search" id="search" placeholder="매장 이름 (예: 파리바게뜨)" autocomplete="off" enterkeyhint="search"></div>
     <div class="recent" id="recent"></div>
     <button class="fold-btn" id="foldBtn" type="button"></button>
     <div class="hscroll" id="cats"></div>
     <div class="chips" id="chips"></div>
     <div class="small" id="chipHint"></div>
     <section id="result"></section>
-    <button class="btn" id="findBtn">📍 내 위치로 매장 다시 찾기</button>
+    <button class="btn" id="findBtn">내 위치로 매장 다시 찾기</button>
+    <div id="leftPanel"></div>
+    <div id="noticeBox"></div>
   </div>
 
   <!-- ===== 화면 2: 내 멤버십 ===== -->
   <div id="view-member" hidden>
-    <button class="btn primary" id="wizBtn">✨ 처음 설정 다시 하기 (3단계)</button>
-    <button class="btn" id="installBtn">📲 홈 화면에 앱으로 설치하기</button>
-    <div class="head"><h2>📱 통신사</h2></div>
+    <button class="btn" id="wizBtn" style="margin-top:14px">처음 설정 다시 하기 (3단계)</button>
+    <button class="btn" id="installBtn">홈 화면에 앱으로 설치하기</button>
+    <div class="head"><h2>통신사</h2></div>
     <div class="chips" id="carrierChips"></div>
     <div id="gradeBox"></div>
     <div id="pointBox"></div>
-    <div class="head"><h2>💳 내 카드</h2><button id="cardAddBtn">+ 카드 추가</button></div>
+    <div class="head"><h2>내 카드</h2><button id="cardAddBtn">+ 카드 추가</button></div>
     <div id="cardBox"></div>
-    <div class="head"><h2>🎂 생일 달</h2></div>
+    <div class="head"><h2>생일 달</h2></div>
     <p class="note">생일 달에는 생일 혜택을 맨 위에 알려드려요.</p>
     <div class="months" id="bdayBox"></div>
     <div class="box" id="dictInfo"></div>
@@ -304,7 +397,7 @@
 
   <!-- ===== 화면 3: 직접 관리 ===== -->
   <div id="view-manage" hidden>
-    <p class="note">통신사·포인트 혜택은 자동으로 들어와요. 여기는 <b>카드 혜택처럼 사전에 없는 것</b>을 넣는 곳이에요. 고르기만 하면 돼요.</p>
+    <p class="note" style="margin-top:14px">통신사·포인트 혜택은 자동으로 들어와요. 여기는 <b>카드 혜택처럼 사전에 없는 것</b>을 넣는 곳이에요. 고르기만 하면 돼요.</p>
     <div class="head"><h2>내가 넣은 혜택</h2><button data-act="addBenefit">+ 추가</button></div>
     <div id="benefitList"></div>
     <div class="head"><h2>내가 넣은 매장</h2><button data-act="addStore">+ 추가</button></div>
@@ -314,10 +407,10 @@
     <div id="recList"></div>
     <div class="head"><h2>백업</h2></div>
     <p class="note">폰을 바꾸거나 저장한 내용이 지워질 때를 대비해 가끔 내보내 두세요.</p>
-    <button class="btn" data-act="export">📤 목록 내보내기</button>
-    <button class="btn" data-act="import">📥 목록 불러오기</button>
-    <p class="note" id="lastBackup"></p>
-    <details class="panel adv"><summary>⚙️ 고급 · 지우기와 초기화<span class="more">펼치기/접기</span></summary><div class="inner">
+    <button class="btn" data-act="export">목록 내보내기</button>
+    <button class="btn" data-act="import">목록 불러오기</button>
+    <p class="note" id="lastBackup" style="margin-top:10px"></p>
+    <details class="panel adv"><summary>고급 · 지우기와 초기화</summary><div class="inner">
       <p class="note">지운 내용은 되돌릴 수 없어요. 먼저 위에서 백업해 두세요.</p>
       <button class="btn danger" data-act="clearBenefits">내가 넣은 혜택만 지우기</button>
       <p class="note">자동 혜택, 매장, 멤버십 설정은 그대로 남아요.</p>
@@ -326,6 +419,14 @@
     </div></details>
   </div>
 </main>
+
+<div class="status" id="status" role="status" aria-live="polite"></div>
+
+<nav class="tabs" aria-label="화면 바꾸기">
+  <button data-view="find" class="on" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg></span>혜택 찾기</button>
+  <button data-view="member" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 14.5h4"/></svg></span>내 멤버십</button>
+  <button data-view="manage" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13 7 4 4"/></svg></span>직접 관리</button>
+</nav>
 
 <div class="sheet" id="sheet" hidden><div class="sheet-inner" id="sheetBody"></div></div>
 
@@ -350,6 +451,7 @@
 <script>
   // ===== 설정 =====
   const 근처기준미터 = 200;
+  const 오래됨기준일 = 30; // 혜택 정보가 이 날수보다 오래되면 첫 화면 맨 위에 경고
   const 데이터키 = "혜택앱v3_내목록";
   const 내정보키 = "혜택앱v3_내정보";
   const 기록키 = "혜택앱v4_내기록";
@@ -375,7 +477,14 @@
   let 매장펼침 = false; // 첫 화면 전체 매장 목록: 평소엔 접어 두고 최근 고른 곳만 보여줌
 
   function 글(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
-  function 상태(메시지) { $("#status").textContent = 메시지; }
+  // 알림 한 줄: 화면 아래에 잠깐 떴다가 사라짐 (글이 길수록 조금 더 오래). 누르면 바로 닫힘
+  let 상태시계 = null;
+  function 상태(메시지) {
+    const 칸 = $("#status"); 칸.textContent = 메시지 || "";
+    clearTimeout(상태시계);
+    if (메시지) 상태시계 = setTimeout(() => { 칸.textContent = ""; }, Math.min(9000, Math.max(3500, String(메시지).length * 110)));
+  }
+  $("#status").addEventListener("click", () => 상태(""));
   function 새ID() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
   function 읽기(키) { try { const v = localStorage.getItem(키); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
   function 쓰기(키, 값) { try { localStorage.setItem(키, JSON.stringify(값)); return true; } catch (e) { return false; } }
@@ -409,7 +518,11 @@
   function 테마적용(t) {
     if (t === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
     $("#themeBtn").textContent = 테마표시[t][0]; $("#themeBtn").title = "화면 밝기: " + 테마표시[t][1];
+    $("#themeBtn").setAttribute("aria-label", "화면 밝기 바꾸기 (지금: " + 테마표시[t][1] + ")");
+    const 어두움 = t === "dark" || (t === "auto" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+    $("#themeColor").setAttribute("content", 어두움 ? "#12102a" : "#f0eff7");
   }
+  if (window.matchMedia) { const 폰설정 = matchMedia("(prefers-color-scheme: dark)"); if (폰설정.addEventListener) 폰설정.addEventListener("change", () => 테마적용(지금테마())); }
   $("#themeBtn").addEventListener("click", () => {
     const 다음 = 테마순서[(테마순서.indexOf(지금테마()) + 1) % 테마순서.length];
     try { localStorage.setItem(테마키, 다음); } catch (e) {}
@@ -629,6 +742,17 @@
     const 말 = { 월: "이번 달", 연: "올해", 주: "이번 주" };
     return 정보.상세.map((x) => `${말[x.단위]} ${x.쓴}/${x.한도}`).join(" · ");
   }
+  // 남은 횟수를 도장으로 보여 줌: ●●○ (한도가 12번을 넘으면 숫자로)
+  let 방금찍은키 = null; // 방금 "썼어요"를 누른 혜택 — 새 도장이 찍히는 움직임을 한 번만 보여 줌
+  function 도장줄(정보) {
+    const 말 = { 월: "이번 달", 연: "올해", 주: "이번 주" };
+    return 정보.상세.map((x) => {
+      const 쓴 = Math.min(x.쓴, x.한도);
+      if (x.한도 > 12) return `<span class="stamps"><span class="st-l">${말[x.단위]} ${x.쓴}/${x.한도}</span></span>`;
+      return `<span class="stamps" role="img" aria-label="${말[x.단위]} ${x.한도}번 중 ${쓴}번 썼어요"><span class="st-l">${말[x.단위]}</span>` +
+        Array.from({ length: x.한도 }, (_, i) => `<i class="${i < 쓴 ? "on" : ""}${방금찍은키 === 정보.키 && i === 쓴 - 1 ? " new" : ""}"></i>`).join("") + `</span>`;
+    }).join("");
+  }
   function 사용바꾸기(키, 상세단위들, 더하기) {
     const d = 사용읽기(), 기 = 기간키(); d[키] = d[키] || {};
     상세단위들.forEach((u) => { const k = 기[u]; d[키][k] = Math.max(0, (d[키][k] || 0) + (더하기 ? 1 : -1)); });
@@ -705,7 +829,7 @@
   function 안내띠그리기() {
     let html = "";
     if (사전있음 && !내정보.통신사 && !내정보.포인트.length)
-      html = `<div class="banner">내 통신사와 멤버십을 고르면 혜택이 자동으로 채워져요. 1분이면 돼요.<button data-go="wizard">✨ 3단계로 설정하기</button></div>`;
+      html = `<div class="banner">내 통신사와 멤버십을 고르면 혜택이 자동으로 채워져요. 1분이면 돼요.<button data-go="wizard">3단계로 설정하기</button></div>`;
     else if (내정보.통신사 && !내정보.등급)
       html = `<div class="banner">통신사 등급을 골라야 통신사 혜택이 나와요.<button data-go="member">등급 고르기</button></div>`;
     else if (내정보.등급추정)
@@ -718,18 +842,19 @@
 
   // 첫 화면 맨 위: 혜택 기준일, 백업 알림, 홈 화면 추가 안내
   function 위알림그리기() {
-    // 1) 기준일 — 45일 넘게 지났으면 눈에 띄게 경고
-    const 사전지남 = 며칠지남(사전_기준일);
+    // 1) 기준일 — 혜택·통신사 제휴·카드 정보 중 하나라도 30일 넘게 지났으면 맨 위에 눈에 띄게 경고
+    //    (평소에는 화면 맨 아래에 작게 보여 줌)
+    const 정보들 = [["혜택 정보", 사전_기준일]];
+    if (typeof 제휴정보 !== "undefined" && 제휴정보.기준일 && 제휴정보.기준일 !== 사전_기준일) 정보들.push(["통신사 제휴", 제휴정보.기준일]);
+    if (카드_기준일) 정보들.push(["카드", 카드_기준일]);
+    const 낡은것 = 정보들.filter(([, 날]) => { const n = 며칠지남(날); return n != null && n > 오래됨기준일; });
     let 줄 = "", 오래됨 = false;
-    if (사전지남 != null && 사전지남 > 45) {
+    if (낡은것.length) {
       오래됨 = true;
-      줄 = `⚠️ 혜택 정보가 ${사전지남}일 전(${날짜표시(사전_기준일)}) 기준이에요. 그사이 바뀐 혜택이 있을 수 있으니 결제 전 꼭 확인하세요.`;
+      줄 = `⚠️ ${낡은것.map(([이름, 날]) => `${이름}가 ${며칠지남(날)}일 전(${날짜표시(날)})`).join(", ")} 기준이에요. 그사이 바뀐 혜택이 있을 수 있으니 결제 전에 해당 앱에서 꼭 확인하세요.`;
     } else {
-      const 조각 = [];
-      if (사전_기준일) 조각.push(`혜택 정보 ${날짜표시(사전_기준일)}`);
-      if (typeof 제휴정보 !== "undefined" && 제휴정보.기준일 && 제휴정보.기준일 !== 사전_기준일) 조각.push(`통신사 제휴 ${날짜표시(제휴정보.기준일)}`);
-      if (카드_기준일) 조각.push(`카드 ${날짜표시(카드_기준일)}`);
-      if (조각.length) 줄 = `📅 ${조각.join(" · ")} 기준 · 결제 전 해당 앱에서 한 번 더 확인하세요`;
+      const 조각 = 정보들.filter(([, 날]) => 날).map(([이름, 날]) => `${이름} ${날짜표시(날)}`);
+      if (조각.length) 줄 = `${조각.join(", ")} 기준이에요. 결제 전 해당 앱에서 한 번 더 확인하세요.`;
     }
     $("#dateLine").textContent = 줄;
     $("#dateLine").className = "date-line" + (오래됨 ? " old" : "");
@@ -741,14 +866,14 @@
     if (남길것있음 && !(미룸 != null && 미룸 < 7)) {
       const 지남 = 며칠지남(마지막), 쓴날 = 며칠지남(읽기(처음사용키)) || 0;
       if (마지막 ? 지남 != null && 지남 >= 30 : 쓴날 >= 7)
-        html += `<div class="notice warn"><span class="t">💾 ${마지막 ? `마지막 백업 ${지남}일 전` : "아직 백업한 적이 없어요"} · 폰을 바꾸면 설정이 사라져요</span>` +
+        html += `<div class="notice warn"><span class="t">${마지막 ? `마지막 백업 ${지남}일 전` : "아직 백업한 적이 없어요"} · 폰을 바꾸면 설정이 사라져요</span>` +
           `<button class="go" data-notice="backup">지금 백업</button>` +
           `<button class="x" data-notice="snooze" aria-label="7일 뒤에 다시 알리기" title="7일 뒤에 다시 알리기">✕</button></div>`;
     }
     // 3) 홈 화면 추가 안내 — 앱으로 설치하지 않고 열었을 때만. ✕로 닫으면 다시 안 띄움
     const 설치됨 = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
     if (!설치됨 && !읽기(설치배너키))
-      html += `<div class="notice"><span class="t">📲 홈 화면에 추가하면 앱처럼 바로 열려요</span>` +
+      html += `<div class="notice"><span class="t">홈 화면에 추가하면 앱처럼 바로 열려요</span>` +
         `<button class="go" data-notice="install">방법 보기</button>` +
         `<button class="x" data-notice="installx" aria-label="설치 안내 닫기" title="닫기">✕</button></div>`;
     $("#noticeBox").innerHTML = html;
@@ -765,16 +890,16 @@
     const 남음수 = 목록.filter((x) => !x.정보.다씀).length;
     let html = "";
     if (생일들.length) {
-      html += `<details class="panel" open><summary>🎂 이번 달 생일 혜택 ${생일들.length}개<span class="more">펼치기/접기</span></summary><div class="inner">` +
+      html += `<details class="panel" open><summary>🎂 이번 달 생일 혜택 ${생일들.length}개</summary><div class="inner">` +
         생일들.map((h) => `<div class="left-row"><div class="t"><b>${글(h.적용)}</b><span>${글(h.수단)} · ${글(h.내용)}</span></div></div>`).join("") + `</div></details>`;
     }
     if (목록.length) {
-      html += `<details class="panel"${남은날 <= 10 && 남음수 ? " open" : ""}><summary>📋 횟수 정해진 혜택 · 남은 것 ${남음수}개<span class="more">펼치기/접기</span></summary><div class="inner">` +
+      html += `<details class="panel"${남은날 <= 10 && 남음수 ? " open" : ""}><summary>횟수 정해진 혜택, 아직 남은 것 ${남음수}개</summary><div class="inner">` +
         (남은날 <= 10 && 남음수 ? `<div class="month-end">⏰ 이번 달이 ${남은날}일 남았어요. 안 쓴 혜택은 다음 달로 넘어가지 않아요.</div>` : "") +
-        목록.map(({ h, 정보 }) => `<div class="left-row${정보.다씀 ? " done" : ""}"><div class="t"><b>${글(정보.이름)}</b><span>${글(횟수글(정보))}${정보.다씀 ? " · 다 썼어요" : ""}</span></div>` +
+        목록.map(({ h, 정보 }) => `<div class="left-row${정보.다씀 ? " done" : ""}"><div class="t"><b>${글(정보.이름)}</b>${도장줄(정보)}${정보.다씀 ? `<span>다 썼어요</span>` : ""}</div>` +
           `${정보.다씀 ? "" : `<button class="mini use" data-use="${글(정보.키)}">썼어요</button>`}` +
-          `<button class="mini undo" data-unuse="${글(정보.키)}">↩</button></div>`).join("") +
-        `<p class="note" style="margin:8px 0 0">혜택을 쓴 뒤 "썼어요"를 누르면 남은 횟수를 세 드려요. 잘못 눌렀으면 ↩</p></div></details>`;
+          `${정보.상세.some((x) => x.쓴 > 0) ? `<button class="mini undo" data-unuse="${글(정보.키)}" aria-label="${글(정보.이름)} 한 번 되돌리기" title="한 번 되돌리기">↩</button>` : ""}</div>`).join("") +
+        `<p class="note" style="margin:8px 0 0">혜택을 쓴 뒤 "썼어요"를 누르면 도장이 하나 찍혀요. 잘못 눌렀으면 ↩로 되돌리세요.</p></div></details>`;
     }
     $("#leftPanel").innerHTML = html;
   }
@@ -840,15 +965,15 @@
       (h.제외 ? `<div class="line no">🚫 사용 못 하는 곳: ${글(h.제외)}</div>` : "") +
       (h.중복 ? `<div class="line mix">🔁 ${글(h.중복)}</div>` : "") +
       (h.팁 ? `<div class="line tip">💡 ${글(h.팁)}</div>` : "") +
-      (정보 ? `<div class="line cnt"><span>🔢 ${글(정보.이름 !== h.적용 + " · " + (h.내용 || h.수단) ? 정보.이름 + " " : "")}${글(횟수글(정보))}${정보.다씀 ? " · 다 썼어요" : ""}</span>${정보.다씀 ? "" : `<button class="mini use" data-use="${글(정보.키)}">썼어요</button>`}</div>` : "") +
+      (정보 ? `<div class="line cnt"><span class="cnt-t">${정보.이름 !== h.적용 + " · " + (h.내용 || h.수단) ? `<span class="cnt-n">${글(정보.이름)}</span>` : ""}${도장줄(정보)}${정보.다씀 ? "다 썼어요" : ""}</span>${정보.다씀 ? "" : `<button class="mini use" data-use="${글(정보.키)}">썼어요</button>`}</div>` : "") +
       (내기록.length ? `<div class="line rec">⚠️ 내 기록: ${내기록.map((r) => 글(r.메모) + " (" + 글(r.날짜) + ")").join(" / ")}</div>` : "") +
       `</div></div>`;
   }
 
-  // "이렇게 하세요" 카드
-  function 추천카드(매장, 목록) {
+  // "이렇게 하세요" — 지금 쓸 가장 좋은 혜택과 순서를 고름 (화면은 아래 쿠폰그리기에서)
+  function 추천고르기(매장, 목록) {
     const 후보 = 목록.filter((h) => !생일대기(h) && !오늘아님(h) && !(횟수정보(h) || {}).다씀);
-    if (!후보.length) return "";
+    if (!후보.length) return null;
     const 확실 = 후보.filter((h) => !h.실적필요);
     const 최선 = 확실.find((h) => h.할인율 > 0) || 확실[0] || 후보.find((h) => h.할인율 > 0) || 후보[0];
     const 단계 = [];
@@ -887,19 +1012,36 @@
     if (최선.실적필요 || (후보.some((h) => h.카드 && h.실적필요) && !후보.some((h) => h.카드 && !h.실적필요)))
       메모.push({ cls: "info", 글: "ℹ️ 카드 혜택은 전월실적을 채워야 받을 수 있어요. 채웠다면 [내 멤버십] > 내 카드에서 '이번 달 실적 채웠어요'를 눌러 주세요." });
     단계.push({ cls: "done", 글: "결제하기" });
-    const 정보 = 횟수정보(최선);
+    return { 최선, 단계, 메모, 정보: 횟수정보(최선) };
+  }
+
+  // 쿠폰 한 장: 위쪽은 매장과 가장 좋은 혜택, 점선 아래는 계산대에서 할 순서
+  let 쿠폰새로 = false; // 매장을 새로 골랐을 때만 쿠폰이 나오는 움직임을 보여 줌
+  function 쿠폰그리기(매장, 목록) {
+    const 새 = 쿠폰새로 ? " fresh" : ""; 쿠폰새로 = false;
+    const 머리 = `<div class="t-store"><span class="t-icon" aria-hidden="true">${아이콘(매장.분류)}</span>` +
+      `<div class="t-name"><h2>${글(매장.이름)}</h2><p>${글(매장.분류 || "분류 없음")}</p></div></div>`;
+    const 추천 = 목록.length ? 추천고르기(매장, 목록) : null;
+    if (!추천) return `<div class="ticket void${새}"><div class="t-top">${머리}<p class="t-void">` +
+      (목록.length ? "지금 바로 쓸 수 있는 혜택이 없어요. 요일·횟수·생일 달 조건을 아래에서 확인해 보세요." : "지금 설정으로 받을 수 있는 혜택이 없어요.") + `</p></div></div>`;
+    const { 최선, 단계, 메모, 정보 } = 추천;
+    const 율 = 최선.할인율 > 0
+      ? `<div class="t-rate"><b>${글(최선.할인율)}<span>%</span></b><small>${/적립/.test(최선.종류 + (최선.형태 || "")) ? "적립" : "할인"}</small></div>`
+      : `<div class="t-rate word"><b>${최선.종류 === "쿠폰" ? "쿠폰" : "혜택"}</b></div>`;
     let n = 0;
-    return `<div class="doit"><h4>✅ 이렇게 하세요</h4>` +
-      `<div class="best">가장 좋은 혜택: <b>${글(최선.내용 || 최선.수단)}</b></div>` +
+    return `<div class="ticket${새}"><div class="t-top">${머리}` +
+      `<div class="t-deal"><div class="t-what"><p class="t-best">${글(최선.내용 || 최선.수단)}</p><p class="t-with">${글(최선.수단)}</p></div>${율}</div></div>` +
+      `<div class="tear" aria-hidden="true"></div>` +
+      `<div class="t-stub"><h3 class="t-how">이렇게 하세요</h3>` +
       단계.map((s) => `<div class="step ${s.cls || ""}"><span class="no">${s.cls === "pre" ? "⏰" : s.cls === "done" ? "✓" : ++n}</span><span>${s.html ? s.글 : 글(s.글)}</span></div>`).join("") +
       메모.map((m) => `<div class="note2 ${m.cls}">${글(m.글)}</div>`).join("") +
       (정보 ? `<button class="btn small primary" data-use="${글(정보.키)}">이 혜택 썼어요 (${글(횟수글(정보))})</button>` : "") +
-      `</div>`;
+      `</div></div>`;
   }
 
   function 결과그리기() {
     const 매장 = 전체매장().find((m) => m.이름 === 선택매장);
-    if (!매장) { 선택매장 = null; $("#result").innerHTML = `<div class="empty">위에서 매장을 골라주세요.</div>`; return; }
+    if (!매장) { 선택매장 = null; $("#result").innerHTML = `<div class="ticket blank">매장을 고르면 여기에 지금 쓸 혜택과 순서가 나와요.</div>`; return; }
     const 목록 = 혜택찾기(매장);
     const 기록들 = 기록읽기();
     const 최대 = 목록.reduce((a, h) => Math.max(a, h.할인율 || 0), 0);
@@ -907,27 +1049,23 @@
     const 묶음 = new Map();
     목록.forEach((h) => { const k = h.수단 || "기타"; if (!묶음.has(k)) 묶음.set(k, []); 묶음.get(k).push(h); });
 
-    let html = `<div class="store-card"><div class="s-top"><div class="s-icon">${아이콘(매장.분류)}</div>` +
-      `<div><h2>${글(매장.이름)}</h2><div class="s-cat">${글(매장.분류 || "분류 없음")}</div></div></div>` +
-      `<div class="s-sum"><span class="pill">혜택 ${목록.length}개</span><span class="pill">멤버십 ${묶음.size}개</span>` +
-      (최대 > 0 ? `<span class="pill">최대 ${글(최대)}%</span>` : "") + `</div></div>`;
-    if (!목록.length) html += `<div class="empty">지금 설정으로 받을 수 있는 혜택이 없어요.</div>`;
-    else html += 추천카드(매장, 목록);
+    let html = 쿠폰그리기(매장, 목록);
+    if (목록.length) html += `<p class="sec-title">${글(매장.이름)}에서 받을 수 있는 혜택 ${목록.length}개${최대 > 0 ? `, 최대 ${글(최대)}%` : ""}</p>`;
     묶음.forEach((hs, 이름) => {
       html += `<div class="group"><div class="ghead"><span class="gname">${글(이름)}</span><span class="gsub">혜택 ${hs.length}개</span></div>`;
       html += 혜택줄(hs[0], 기록들, false);
-      if (hs.length > 1) html += `<div class="extra-label">➕ 추가 혜택</div>` + hs.slice(1).map((h) => 혜택줄(h, 기록들, true)).join("");
+      if (hs.length > 1) html += `<div class="extra-label">추가 혜택</div>` + hs.slice(1).map((h) => 혜택줄(h, 기록들, true)).join("");
       html += `</div>`;
     });
     const 연계 = 연계찾기(매장);
-    if (연계.length) html += `<div class="combo"><h4>🤝 함께 받기</h4>` + 연계.map(({ x, 없음 }) => {
+    if (연계.length) html += `<div class="combo"><h4>함께 받기</h4>` + 연계.map(({ x, 없음 }) => {
       const cls = 없음.length ? "maybe" : x.종류 === "주의" ? "caution" : "ok";
       const 앞 = 없음.length ? 없음.map((id) => 멤버십찾기(id).이름).join(", ") + "도 있다면: " : (x.종류 === "주의" ? "⚠️ " : "✅ ");
       return `<div class="c ${cls}">${글(앞 + x.내용)}</div>`;
     }).join("") + `</div>`;
     if (목록.some((h) => h.사전)) html += `<div class="small">자동 혜택은 ${글(사전_기준일)} 기준이에요. 혜택을 누르면 출처를 보고, 안 되는 지점을 기록할 수 있어요.</div>`;
     html += `<button class="btn" id="addHere">+ 이 매장에 내 혜택 추가 (카드 등)</button>`;
-    html += `<button class="btn primary" id="rememberBtn">📌 지금 위치를 '${글(매장.이름)}'(으)로 기억하기</button>`;
+    html += `<button class="btn" id="rememberBtn">지금 위치를 '${글(매장.이름)}'(으)로 기억하기</button>`;
     if (기억수) html += `<button class="btn" id="forgetBtn">기억한 위치 지우기 (${기억수}곳)</button>`;
     $("#result").innerHTML = html;
     $("#addHere").onclick = () => 혜택폼(null, { 적용: 매장.이름 });
@@ -935,10 +1073,10 @@
     if (기억수) $("#forgetBtn").onclick = 위치지우기;
   }
   function 매장선택(이름, 스크롤) {
-    선택매장 = 이름;
+    선택매장 = 이름; 쿠폰새로 = true;
     쓰기(최근키, [이름].concat(최근읽기().filter((n) => n !== 이름)).slice(0, 6));
     매장버튼그리기(); 결과그리기();
-    if (스크롤) { const 카드 = $("#result .store-card"); if (카드) window.scrollTo({ top: 카드.getBoundingClientRect().top + window.scrollY - $(".top-bar").offsetHeight - 8, behavior: "smooth" }); }
+    if (스크롤) { const 카드 = $("#result .ticket"); if (카드) window.scrollTo({ top: 카드.getBoundingClientRect().top + window.scrollY - $(".top-bar").offsetHeight - 8, behavior: "smooth" }); }
   }
 
   // ===== 화면 2: 내 멤버십 =====
@@ -958,7 +1096,7 @@
     } else g = `<p class="note">알뜰폰은 보통 통신사 멤버십 대상이 아니에요.</p>`;
     $("#gradeBox").innerHTML = g;
     const 분류들 = [...new Set(기타목록.map((m) => m.분류))];
-    const 제목 = { "포인트": "🪙 포인트", "브랜드 멤버십": "⭐ 브랜드 멤버십", "구독": "📦 구독 멤버십" };
+    const 제목 = { "포인트": "포인트", "브랜드 멤버십": "브랜드 멤버십", "구독": "구독 멤버십" };
     $("#pointBox").innerHTML = 분류들.map((c) => {
       const ms = 기타목록.filter((m) => m.분류 === c);
       let s = `<div class="head"><h2>${글(제목[c] || c)}</h2></div><div class="chips">` +
@@ -982,12 +1120,13 @@
       : `<div class="empty">아직 없어요. [+ 카드 추가]에서 카드사 → 카드를 고르면 혜택이 자동으로 붙어요.</div>`;
     $("#bdayBox").innerHTML = Array.from({ length: 12 }, (_, i) => `<button class="${내정보.생일월 === i + 1 ? "on" : ""}" data-bday="${i + 1}">${i + 1}월</button>`).join("");
     const 적용수 = 사전혜택목록().length;
+    const 저장안내 = `<p class="only-here">내 설정·기록·기억한 위치는 이 폰에만 저장돼요. 어디로도 보내지 않아요. 카드를 인터넷에서 찾을 때만 검색어가 카드고릴라로 가요.</p>`;
     $("#dictInfo").innerHTML = 사전있음
       ? `<p><b>지금 설정으로 자동 적용되는 혜택: ${적용수}개</b></p><p>혜택 사전 기준일: ${글(사전_기준일)}</p>` +
         `<p>표시 뜻 — 표시 없음: 공식 페이지에서 확인 / <span class="tag">언론 보도</span>: 뉴스 기사 기준 / <span class="tag warn">[확인 필요]</span>: 공식 안내가 분명하지 않음</p>` +
         `<p>내 카드 혜택: ${카드혜택목록().length}개 (카드 사전 ${카드_목록.length}개 카드, 카드고릴라 ${글(카드_기준일)} 기준)</p>` +
-        `<p>매달 바뀌는 기간 한정 이벤트(T day, 달.달.혜택 등)는 넣지 않았어요.</p>`
-      : `<p>혜택 사전을 읽지 못해서 자동 혜택을 쓸 수 없어요.</p>`;
+        `<p>매달 바뀌는 기간 한정 이벤트(T day, 달.달.혜택 등)는 넣지 않았어요.</p>` + 저장안내
+      : `<p>혜택 사전을 읽지 못해서 자동 혜택을 쓸 수 없어요.</p>` + 저장안내;
   }
 
   // ===== 화면 3: 직접 관리 =====
@@ -1064,7 +1203,7 @@
             <div class="chips">${m.등급.map((g) => `<button class="chip${내정보.포인트등급[m.id] === g ? " on" : ""}" data-w-pgrade="${글(g)}" data-for="${m.id}">${글(g)}</button>`).join("")}</div>`).join("")}
           <p class="note" style="margin-top:14px"><b>🎂 생일이 몇 월이에요?</b> (선택) 생일 달에 생일 혜택을 알려드려요.</p>
           <div class="months">${Array.from({ length: 12 }, (_, i) => `<button class="${내정보.생일월 === i + 1 ? "on" : ""}" data-w-bday="${i + 1}">${i + 1}월</button>`).join("")}</div>
-          ${카드_목록.length ? `<button class="btn" id="w카드">💳 쓰는 카드도 추가하기 (선택)${내정보.카드.length ? ` · ${내정보.카드.length}개 추가됨` : ""}</button>` : ""}
+          ${카드_목록.length ? `<button class="btn" id="w카드">쓰는 카드도 추가하기 (선택)${내정보.카드.length ? ` · ${내정보.카드.length}개 추가됨` : ""}</button>` : ""}
           <div class="wiz-nav"><button class="btn" id="w뒤로">← 뒤로</button><button class="btn primary" id="w끝">완료</button></div>`);
         if ($("#w카드")) $("#w카드").onclick = () => 카드고르기("", () => 처음설정(3));
         $("#w뒤로").onclick = () => 처음설정(내정보.통신사 ? 2 : 1);
@@ -1088,7 +1227,7 @@
     const 아이폰 = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     const 설치됨 = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
     const 파일 = location.protocol === "file:";
-    시트열기(`<h3>📲 홈 화면에 앱으로 설치하기</h3>
+    시트열기(`<h3>홈 화면에 앱으로 설치하기</h3>
       ${설치됨 ? `<p class="fsel">이미 앱으로 설치돼 있어요 👍</p>` : ""}
       ${파일 ? `<p class="error">지금은 PC의 파일로 열려 있어요. 인터넷 주소(https)에 올린 다음, 폰에서 그 주소를 열어 설치할 수 있어요.</p>` : ""}
       <div class="box" style="margin-top:8px"><p><b>🍎 아이폰 (사파리)</b></p><ol class="steps-ol">
@@ -1114,19 +1253,19 @@
       return (사 || 검색.trim()) && 목록.length ? 목록.map((c) =>
         `<button class="row" data-cpick="${글(c.id)}"><span class="main">${내정보.카드.includes(c.id) ? "✓ " : ""}${글(c.이름)}</span>` +
         `<span class="sub">${글(c.카드사)} · ${글(c.종류)} · 매장 혜택 ${c.혜택.length}개${c.요약 ? " · " + 글(c.요약.slice(0, 50)) : ""}</span></button>`).join("")
-        : `<div class="empty">${사 || 검색.trim() ? "목록에 없어요. 아래 [🌐 카드고릴라에서 찾기]를 눌러 보세요." : "카드사를 누르거나 카드 이름을 검색하세요."}</div>`;
+        : `<div class="empty">${사 || 검색.trim() ? "목록에 없어요. 아래 [카드고릴라에서 찾기]를 눌러 보세요." : "카드사를 누르거나 카드 이름을 검색하세요."}</div>`;
     };
     const 결과연결 = () => $("#c결과").querySelectorAll("[data-cpick]").forEach((b) => b.onclick = () => 카드미리보기(b.dataset.cpick, () => 카드고르기(사, 돌아가기)));
     const 그리기 = () => {
       const 위치 = $("#sheet").hidden ? 0 : $("#sheetBody").scrollTop;
-      시트열기(`<h3>💳 카드 추가</h3>
+      시트열기(`<h3>카드 추가</h3>
         <p class="note">카드사를 누르고 내 카드를 고르면, 그 카드의 혜택이 매장마다 자동으로 붙어요.</p>
         <div class="chips">${카드사들.map((c) => `<button class="chip sm${사 === c ? " on" : ""}" data-sa="${글(c)}">${글(c)}</button>`).join("")}</div>
         <input id="c검색" placeholder="카드 이름 검색 (예: 현대카드M, 노리)" value="${글(검색)}" autocomplete="off">
         <div class="rows" id="c결과" style="margin-top:10px">${결과HTML()}</div>
         <p class="note" style="margin-top:10px">카드사별 인기 카드 ${카드_목록.length}개가 들어 있어요 (${글(카드_기준일)}, 카드고릴라 기준).</p>
-        <button class="btn primary" id="c온라인">🌐 목록에 없어요 → 카드고릴라에서 찾기</button>
-        <button class="btn" id="c직접">✏️ 혜택을 직접 입력</button>
+        <button class="btn primary" id="c온라인">목록에 없어요, 카드고릴라에서 찾기</button>
+        <button class="btn" id="c직접">혜택을 직접 입력</button>
         <button class="btn" id="c닫기">${돌아가기 ? "← 뒤로" : "닫기"}</button>`);
       $("#sheetBody").scrollTop = 위치;
       $("#c검색").oninput = (e) => { 검색 = e.target.value; $("#c결과").innerHTML = 결과HTML(); 결과연결(); };
@@ -1206,9 +1345,35 @@
       요약: (Array.isArray(j.top_benefit) ? j.top_benefit : []).map((b) => (b.tags || []).join(" ")).join(" · "),
       출처: "https://www.card-gorilla.com/card/detail/" + Number(j.idx), 혜택, 기타: [...new Set(기타)].slice(0, 6), 검색카드: true, 가져온날: 오늘() };
   }
+  // 카드고릴라는 우리가 관리하는 곳이 아니라서 언제든 느려지거나 막힐 수 있음
+  //  → 8초 안에 답이 없으면 그만 기다리고, 앱에 들어 있는 카드 목록·직접 입력으로 이어서 할 수 있게 안내
+  async function 카드요청(주소) {
+    const 끊기 = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const 시계 = setTimeout(() => { if (끊기) 끊기.abort(); }, 8000);
+    try {
+      const r = await fetch(주소, 끊기 ? { signal: 끊기.signal } : undefined);
+      if (!r.ok) throw new Error(r.status);
+      return await r.json();
+    } finally { clearTimeout(시계); }
+  }
+  function 카드연결실패(돌아가기) {
+    const 끊김 = navigator.onLine === false;
+    return {
+      html: `<div class="error">${끊김 ? "인터넷 연결이 끊겨 있어요. 연결한 뒤 다시 해 주세요."
+          : "카드고릴라에서 답이 오지 않아요. 잠시 뒤 다시 해 보세요. 계속 안 되면 카드고릴라 쪽이 바뀐 것일 수 있어요."}</div>` +
+        `<p class="note">인터넷 검색 없이도 카드를 넣을 수 있어요.</p>` +
+        `<button class="btn" data-fb="list">앱에 들어 있는 카드 ${카드_목록.length}개에서 찾기</button>` +
+        `<button class="btn" data-fb="manual">혜택을 직접 입력</button>`,
+      연결: (칸) => {
+        const 목록 = 칸.querySelector('[data-fb="list"]'), 직접 = 칸.querySelector('[data-fb="manual"]');
+        if (목록) 목록.onclick = () => (돌아가기 ? 돌아가기() : 카드고르기(""));
+        if (직접) 직접.onclick = () => 혜택폼(null, { 수단종류: "카드", 직접: true });
+      },
+    };
+  }
   function 온라인카드찾기(검색어, 돌아가기) {
     let 마지막 = "";
-    시트열기(`<h3>🌐 카드고릴라에서 찾기</h3>
+    시트열기(`<h3>카드고릴라에서 찾기</h3>
       <p class="note">카드 비교 사이트(카드고릴라)에서 찾아서, 혜택·할인율·조건을 자동으로 넣어요. 인터넷이 연결돼 있어야 해요.</p>
       <input id="o검색" placeholder="카드 이름 (예: 현대카드M)" value="${글(검색어)}" autocomplete="off" enterkeyhint="search">
       <button class="btn primary small" id="o찾기">찾기</button>
@@ -1220,9 +1385,7 @@
       if (!q) return 결과칸(`<div class="empty">카드 이름을 넣어 주세요.</div>`);
       결과칸(`<div class="empty">찾는 중…</div>`);
       try {
-        const r = await fetch(`${카드API}/search?p=1&perPage=40&keyword=${encodeURIComponent(q)}`);
-        if (!r.ok) throw new Error(r.status);
-        const d = await r.json();
+        const d = await 카드요청(`${카드API}/search?p=1&perPage=40&keyword=${encodeURIComponent(q)}`);
         if (q !== 마지막 || !$("#o결과")) return; // 그 사이 다른 검색을 했거나 창을 닫음
         // 지금 발급 중인 카드를 먼저, 발급 중단(단종) 카드는 뒤에
         const 목록 = (Array.isArray(d.data) ? d.data : []).filter((c) => Number(c.idx) > 0).sort((a, b) => (a.is_discon ? 1 : 0) - (b.is_discon ? 1 : 0));
@@ -1231,7 +1394,7 @@
           : `<div class="empty">찾는 카드가 없어요. 이름을 짧게 넣어 보세요 (예: '현대카드M' → 'M').</div>`);
         $("#o결과").querySelectorAll("[data-oidx]").forEach((b) => b.onclick = () => 온라인카드가져오기(b.dataset.oidx, () => 온라인카드찾기(q, 돌아가기)));
       } catch (e) {
-        if ($("#o결과")) 결과칸(`<div class="error">카드고릴라에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 [찾기]를 눌러 주세요.</div>`);
+        if (q === 마지막 && $("#o결과")) { const 실패 = 카드연결실패(돌아가기); 결과칸(실패.html); 실패.연결($("#o결과")); }
       }
     };
     $("#o찾기").onclick = 찾기;
@@ -1242,24 +1405,23 @@
   async function 온라인카드가져오기(idx, 돌아가기) {
     const id = "cg" + Number(idx);
     if (카드찾기(id)) return 카드미리보기(id, 돌아가기);
-    시트열기(`<h3>🌐 카드 정보 가져오는 중…</h3><div class="empty">잠깐만 기다려 주세요.</div>`);
+    시트열기(`<h3>카드 정보 가져오는 중…</h3><div class="empty">잠깐만 기다려 주세요.</div>`);
     try {
-      const r = await fetch(`${카드API}/${Number(idx)}`);
-      if (!r.ok) throw new Error(r.status);
-      const c = 카드변환(await r.json());
+      const c = 카드변환(await 카드요청(`${카드API}/${Number(idx)}`));
       if (!카드찾기(id)) 카드_목록.push(c);
       카드미리보기(id, 돌아가기);
     } catch (e) {
-      시트열기(`<h3>🌐 카드 정보를 못 가져왔어요</h3>
-        <div class="error">카드고릴라에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 해 주세요.</div>
+      const 실패 = 카드연결실패(null);
+      시트열기(`<h3>카드 정보를 못 가져왔어요</h3><div id="o실패">${실패.html}</div>
         <button class="btn" id="o뒤로">← 뒤로</button>`);
+      실패.연결($("#o실패"));
       $("#o뒤로").onclick = () => (돌아가기 ? 돌아가기() : 시트닫기());
     }
   }
   function 카드미리보기(id, 돌아가기) {
     const c = 카드찾기(id); if (!c) return;
     const 있음 = 내정보.카드.includes(id);
-    시트열기(`<h3>💳 ${글(c.이름)}</h3>
+    시트열기(`<h3>${글(c.이름)}</h3>
       <p class="note">${글(c.카드사)} · ${글(c.종류)} · ${c.전월실적 > 0 ? "전월실적 " + 만원(c.전월실적) + " 이상" : "전월실적 조건 없음"}${c.연회비 ? " · 연회비 " + 글(c.연회비) : ""}</p>
       <div class="box" style="margin-top:0"><p><b>매장에 자동으로 붙는 혜택 ${c.혜택.length}개</b></p>
         ${c.혜택.length ? c.혜택.map((h) => `<p>• <b>${글(h.적용)}</b> — ${글(h.내용)}</p>`).join("") : `<p class="note">우리 앱의 매장과 연결되는 혜택이 없어요.</p>`}</div>
@@ -1280,7 +1442,7 @@
     if (!h) return;
     const 그리기 = () => {
       const 내기록 = 기록읽기()[h.기록키] || [], 정보 = 횟수정보(h), c = 카드찾기(id), 채움 = 내정보.실적[id] === 기간키().월;
-      시트열기(`<h3>💳 ${글(h.적용)} · ${글(h.수단)}</h3>
+      시트열기(`<h3>${글(h.적용)} · ${글(h.수단)}</h3>
         <div class="dl">
           <div><b>혜택</b>${글(h.내용)}</div>
           <div><b>💳 결제할 때</b>${글(h.방법설명)}</div>
@@ -1382,7 +1544,7 @@
       const 목록 = 카드_목록.filter((c) => (!f.카드사 || c.카드사 === f.카드사) && (!카드검색.trim() || 이름맞음(c.이름, 카드검색)));
       return (f.카드사 || 카드검색.trim()) && 목록.length ? 목록.map((c) =>
         `<button class="row" data-cpick="${글(c.id)}"><span class="main">${내정보.카드.includes(c.id) ? "✓ " : ""}${글(c.이름)}</span><span class="sub">${글(c.종류)} · 매장 혜택 ${c.혜택.length}개${c.요약 ? " · " + 글(c.요약.slice(0, 50)) : ""}</span></button>`).join("")
-        : `<div class="empty">${f.카드사 || 카드검색.trim() ? "목록에 없어요. 아래 [🌐 카드고릴라에서 찾기]를 눌러 보세요." : "카드사를 누르거나 카드 이름을 쳐 보세요."}</div>`;
+        : `<div class="empty">${f.카드사 || 카드검색.trim() ? "목록에 없어요. 아래 [카드고릴라에서 찾기]를 눌러 보세요." : "카드사를 누르거나 카드 이름을 쳐 보세요."}</div>`;
     };
     const 자동그리기 = () => {
       const 위치 = $("#sheet").hidden ? 0 : $("#sheetBody").scrollTop;
@@ -1633,7 +1795,7 @@
     if (!정보) return true;
     사용바꾸기(키, 정보.상세.map((x) => x.단위), !!u);
     상태(u ? `✅ '${정보.이름}' 썼어요로 기록했어요.` : `↩ '${정보.이름}' 기록을 하나 되돌렸어요.`);
-    새로그리기(); return true;
+    방금찍은키 = u ? 키 : null; 새로그리기(); 방금찍은키 = null; return true;
   }
   document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => 화면전환(b.dataset.view)));
   $("#search").addEventListener("input", 매장버튼그리기);
