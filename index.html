@@ -313,6 +313,7 @@
   .wiz-step { display: inline-block; font-family: var(--num); font-weight: 800; font-size: 14px; background: var(--coupon); color: var(--coupon-ink); border-radius: 8px; padding: 2px 10px; margin-bottom: 10px; }
   .wiz-q { font-size: 26px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.8px; line-height: 1.25; }
   .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .wiz-cat { font-size: 15px; font-weight: 800; color: var(--sub); margin: 22px 2px -6px; }
   .tile { position: relative; border: 2px solid var(--line); background: var(--card); border-radius: 16px; padding: 14px 34px 14px 14px;
           font-size: 17px; font-weight: 800; cursor: pointer; text-align: left; min-height: 74px; }
   .tile small { display: block; font-size: 13px; font-weight: 500; color: var(--sub); margin-top: 3px; }
@@ -802,10 +803,13 @@
   function 오늘아님(h) { const d = 정해진요일(h); return (!!d && !d.includes(요일글자[new Date().getDay()])) || 지금아님(h); }
   // '오후 9시 ~ 오전 9시'처럼 시간이 정해진 혜택
   function 정해진시간(h) {
-    const ms = [...((h.내용 || "") + " " + (h.조건 || "")).matchAll(/(오전|오후)\s?(\d+)시\s?~\s?(오전|오후)\s?(\d+)시/g)];
-    if (!ms.length) return null;
+    const 글 = (h.내용 || "") + " " + (h.조건 || "");
+    const ms = [...글.matchAll(/(오전|오후)\s?(\d+)시\s?~\s?(오전|오후)\s?(\d+)시/g)];
+    const 이후 = [...글.matchAll(/(오전|오후)\s?(\d+)시\s?이후/g)]; // '오후 2시 이후'처럼 시작 시각만 있는 혜택 (그날 자정까지)
+    if (!ms.length && !이후.length) return null;
     const 시 = (오, n) => (Number(n) % 12) + (오 === "오후" ? 12 : 0);
-    return { 구간: ms.map((m) => ({ 시작: 시(m[1], m[2]), 끝: 시(m[3], m[4]) })), 글: ms.map((m) => m[0]).join(", ") };
+    return { 구간: ms.map((m) => ({ 시작: 시(m[1], m[2]), 끝: 시(m[3], m[4]) })).concat(이후.map((m) => ({ 시작: 시(m[1], m[2]), 끝: 24 }))),
+      글: ms.map((m) => m[0]).concat(이후.map((m) => m[0])).join(", ") };
   }
   function 지금아님(h) {
     const t = 정해진시간(h); if (!t) return false;
@@ -1023,7 +1027,7 @@
       `<div class="t-name"><h2>${글(매장.이름)}</h2><p>${글(매장.분류 || "분류 없음")}</p></div></div>`;
     const 추천 = 목록.length ? 추천고르기(매장, 목록) : null;
     if (!추천) return `<div class="ticket void${새}"><div class="t-top">${머리}<p class="t-void">` +
-      (목록.length ? "지금 바로 쓸 수 있는 혜택이 없어요. 요일·횟수·생일 달 조건을 아래에서 확인해 보세요." : "지금 설정으로 받을 수 있는 혜택이 없어요.") + `</p></div></div>`;
+      (목록.length ? "지금 바로 쓸 수 있는 혜택이 없어요. 요일·시간·횟수·생일 달 조건을 아래에서 확인해 보세요." : "지금 설정으로 받을 수 있는 혜택이 없어요.") + `</p></div></div>`;
     const { 최선, 단계, 메모, 정보 } = 추천;
     const 율 = 최선.할인율 > 0
       ? `<div class="t-rate"><b>${글(최선.할인율)}<span>%</span></b><small>${/적립/.test(최선.종류 + (최선.형태 || "")) ? "적립" : "할인"}</small></div>`
@@ -1198,7 +1202,8 @@
     } else if (단계 === 3) {
       const 그리기 = () => {
         시트열기(`<div class="wiz-step">3 / 3</div><p class="wiz-q">가입한 것 모두 눌러 주세요</p><p class="note">잘 모르겠으면 그냥 넘어가도 돼요. 나중에 [내 멤버십]에서 바꿀 수 있어요.</p>
-          <div class="tiles">${기타목록.map((m) => `<button class="tile${내정보.포인트.includes(m.id) ? " on" : ""}" data-w-point="${m.id}">${글(m.이름)}<small>${글(멤버십대표매장(m.id))}</small></button>`).join("")}</div>
+          ${[...new Set(기타목록.map((m) => m.분류))].map((c) => `<p class="wiz-cat">${글(c === "구독" ? "구독 멤버십" : c)}</p>
+          <div class="tiles">${기타목록.filter((m) => m.분류 === c).map((m) => `<button class="tile${내정보.포인트.includes(m.id) ? " on" : ""}" data-w-point="${m.id}">${글(m.이름)}<small>${글(멤버십대표매장(m.id))}</small></button>`).join("")}</div>`).join("")}
           ${기타목록.filter((m) => m.등급 && 내정보.포인트.includes(m.id)).map((m) => `<p class="note">${글(m.이름)} 등급은요? (${글(m.등급확인)})</p>
             <div class="chips">${m.등급.map((g) => `<button class="chip${내정보.포인트등급[m.id] === g ? " on" : ""}" data-w-pgrade="${글(g)}" data-for="${m.id}">${글(g)}</button>`).join("")}</div>`).join("")}
           <p class="note" style="margin-top:14px"><b>🎂 생일이 몇 월이에요?</b> (선택) 생일 달에 생일 혜택을 알려드려요.</p>
